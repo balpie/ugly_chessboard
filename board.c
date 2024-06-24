@@ -1,31 +1,43 @@
 #include "board.h"
 
+type_pezzo Board[8][8] = {
+    {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+    {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+    {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+};
+
+//TESTING
+// matto da corridoio bianco
 // type_pezzo Board[8][8] = {
-// {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-// {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+// {W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, EMPTY, EMPTY, W_KING, W_ROOK},
+// {W_PAWN, W_PAWN, W_PAWN, EMPTY, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
 // {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+// {EMPTY, EMPTY, EMPTY, B_ROOK, EMPTY, EMPTY, EMPTY, EMPTY},
 // {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
 // {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
 // {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
 // {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 // };
 
-//TESTING
+// matto da corridoio nero 
+//type_pezzo Board[8][8] = {
+//    {W_ROOK, W_KNIGHT, W_BISHOP, W_PAWN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+//    {W_PAWN, W_PAWN, W_PAWN, W_QUEEN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//    {B_PAWN, B_PAWN, B_PAWN, EMPTY, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+//    {B_KING, EMPTY, EMPTY, EMPTY, EMPTY, B_BISHOP, B_KNIGHT, B_ROOK},
+//};
 
-type_pezzo Board[8][8] = {
-{W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, EMPTY, EMPTY, W_KING, W_ROOK},
-{W_PAWN, W_PAWN, W_PAWN, EMPTY, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-{EMPTY, EMPTY, EMPTY, B_ROOK, EMPTY, EMPTY, EMPTY, EMPTY},
-{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-{B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-{B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-};
-
-struct position wKingPosition = {.r = 0, .c = 6};
-struct position bKingPosition = {.r = 7, .c = 4};
+// struct position wKingPosition = {.r = 0, .c = 4};
+// struct position bKingPosition = {.r = 7, .c = 0};
 
 //TESTING
 
@@ -35,8 +47,8 @@ int game_status = NOT_FINISHED;
 
 struct position_list *head = NULL;
 
-//struct position wKingPosition = {.r = 0, .c = 4};
-//struct position bKingPosition = {.r = 7, .c = 4};
+struct position wKingPosition = {.r = 0, .c = 4};
+struct position bKingPosition = {.r = 7, .c = 4};
 struct position lastPieceMoved = {.r = -1, .c = -1};
 struct position lastFreedCell= {.r = -1, .c = -1};
 
@@ -743,7 +755,8 @@ void print_chessboard()
         printf("Sta al nero: ");
 }
 
-int isItCheck(struct position inExamPiece, int color, int ow)
+int isItCheck(struct position inExamPiece, int color, int ow) 
+// usa il metodo degli accumulatori per scorrere diagonali e linee !!!!!!!!!!!!!!!
 {
     int r, c;
     r = inExamPiece.r;
@@ -766,7 +779,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso l'alto ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_ROOK || Board[i][j] == W_QUEEN || Board[i][j] == B_ROOK || Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -795,7 +808,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_ROOK || Board[i][j] == W_QUEEN || Board[i][j] == B_ROOK || Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -824,7 +837,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_ROOK || Board[i][j] == W_QUEEN || Board[i][j] == B_ROOK || Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -853,7 +866,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_ROOK || Board[i][j] == W_QUEEN || Board[i][j] == B_ROOK || Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -883,7 +896,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_BISHOP || Board[i][j] == W_QUEEN || Board[i][j] == B_BISHOP|| Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -913,7 +926,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_BISHOP || Board[i][j] == W_QUEEN || Board[i][j] == B_BISHOP|| Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -943,7 +956,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_BISHOP || Board[i][j] == W_QUEEN || Board[i][j] == B_BISHOP|| Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -973,7 +986,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             {
                 break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
             }
-            if(Board[i][j] == W_BISHOP || Board[i][j] == W_QUEEN || Board[i][j] == B_BISHOP|| Board[i][j] == B_QUEEN)
+            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
             {
                 check = 1;
                 if(ow)
@@ -1431,7 +1444,7 @@ int checkMate()
             {
                 if(checkInBound(wKingPosition.r+i, wKingPosition.c+j)) 
                 {
-                    if(!isBlackPiece(Board[wKingPosition.r + i][wKingPosition.c + j]))
+                    if(!isWhitePiece(Board[wKingPosition.r + i][wKingPosition.c + j]))
                     {
                         type_pezzo aux = Board[wKingPosition.r + i][wKingPosition.c + j];
                         Board[wKingPosition.r + i][wKingPosition.c + j] = W_KING;

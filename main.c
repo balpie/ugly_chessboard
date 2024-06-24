@@ -21,25 +21,24 @@ int main()
             if(turn == WHITE)
             {
                 if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE)){
+                    printf("Scacco!\n");
+                    system("sleep 1");
                     game_status = checkMate();
-                    if(game_status == CHECK_MATE)
-                    {
-                        printf("Scacco Matto!\n");
-                        break;
-                    }
                 }
             }
             else
             {
                 if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                 {
+                    printf("Scacco!\n");
+                    system("sleep 1");
                     game_status = checkMate();
-                    if(game_status == CHECK_MATE)
-                    {
-                        printf("Scacco Matto!\n");
-                        break;
-                    }
                 }
+            }
+            if(game_status == CHECK_MATE)
+            {
+                printf("Scacco Matto!\n");
+                break;
             }
             turn = !turn; 
         }
