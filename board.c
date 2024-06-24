@@ -17,8 +17,8 @@ int game_status = NOT_FINISHED;
 
 struct position_list *head = NULL;
 
-struct position wKingPosition = {.r = 4, .c = 0};
-struct position bKingPosition = {.r = 4, .c = 7};
+struct position wKingPosition = {.r = 0, .c = 4};
+struct position bKingPosition = {.r = 7, .c = 4};
 struct position lastPieceMoved = {.r = -1, .c = -1};
 struct position lastFreedCell= {.r = -1, .c = -1};
 
@@ -1255,6 +1255,8 @@ int checkMate()
             inExamSquare = lastPieceMoved;
             if((Board[inExamSquare.r][inExamSquare.c] == W_PAWN) || (Board[inExamSquare.r][inExamSquare.c] == W_KNIGHT)) 
                 return CHECK_MATE; // se il pezzo che mi mette sotto scacco non posso mangiarlo ed è un pedone o cavallo è matto
+            else if ((abs(inExamSquare.r - bKingPosition.r) <= 1) && (abs(inExamSquare.r - bKingPosition.r) <= 1))
+                return CHECK_MATE; // pezzo troppo vicino, non posso spostarmi ne mangiarlo => ho perso
         }
         else // scacco di scoperta, trovo il pezzo che mi fa scacco
         {
@@ -1456,8 +1458,10 @@ int checkMate()
                 }
             } // se sono sotto scacco dall'ultimo pezzo mosso vedo se posso mangiarlo
             inExamSquare = lastPieceMoved;
-            if((Board[inExamSquare.r][inExamSquare.c] == B_PAWN) || (Board[inExamSquare.r][inExamSquare.c] == B_KNIGHT)) 
+            if((Board[inExamSquare.r][inExamSquare.c] == B_PAWN) || (Board[inExamSquare.r][inExamSquare.c] == B_KNIGHT))
                 return CHECK_MATE; // se il pezzo che mi mette sotto scacco non posso mangiarlo ed è un pedone o cavallo è matto
+            else if ((abs(inExamSquare.r - wKingPosition.r) <= 1) && (abs(inExamSquare.r - wKingPosition.r) <= 1))
+                return CHECK_MATE; // il pezzo è attaccato al re, se non posso spostarmi o mangiarlo ho perso
         }
         else // scacco di scoperta, trovo il pezzo che mi fa scacco
         {
