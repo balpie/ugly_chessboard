@@ -1,15 +1,33 @@
 #include "board.h"
 
+// type_pezzo Board[8][8] = {
+// {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+// {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+// {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+// {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+// };
+
+//TESTING
+
 type_pezzo Board[8][8] = {
-    {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-    {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-    {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+{W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, EMPTY, EMPTY, W_KING, W_ROOK},
+{W_PAWN, W_PAWN, W_PAWN, EMPTY, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+{EMPTY, EMPTY, EMPTY, B_ROOK, EMPTY, EMPTY, EMPTY, EMPTY},
+{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+{EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+{B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+{B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 };
+
+struct position wKingPosition = {.r = 0, .c = 6};
+struct position bKingPosition = {.r = 7, .c = 4};
+
+//TESTING
 
 int turn = WHITE;
 unsigned int castle_privileges = WHITE_CASTLE_PRIVILEGE | BLACK_CASTLE_PRIVILEGE;
@@ -17,8 +35,8 @@ int game_status = NOT_FINISHED;
 
 struct position_list *head = NULL;
 
-struct position wKingPosition = {.r = 0, .c = 4};
-struct position bKingPosition = {.r = 7, .c = 4};
+//struct position wKingPosition = {.r = 0, .c = 4};
+//struct position bKingPosition = {.r = 7, .c = 4};
 struct position lastPieceMoved = {.r = -1, .c = -1};
 struct position lastFreedCell= {.r = -1, .c = -1};
 
@@ -136,7 +154,7 @@ int freeDiagonal(int r_i, int c_i, int r_f, int c_f)
     else acc_j = -1;
 
     int i = r_i + acc_i, j = c_i + acc_j; 
-    while((i != r_f - acc_i) && (j != c_f - acc_j)) // controllo fino alla penultima cella della diagonale
+    while((i != r_f) && (j != c_f)) // controllo fino alla penultima cella della diagonale
     {
         if(Board[i][j] != EMPTY)
         {
@@ -156,8 +174,8 @@ int goodLine(int r_i, int c_i, int r_f, int c_f)
 
 int freeLine(int r_i, int c_i, int r_f, int c_f)
 {
-    int acc, i, ret = 1;
-    if (abs(r_i - r_f) == 1 || abs(c_i - c_f) == 1)
+    int acc, i;
+    if ((abs(r_i - r_f) <= 1) && (abs(c_i - c_f) <= 1))
     {
         return 1; //linea sicuramente libera, posto adiacente
     }
@@ -165,12 +183,11 @@ int freeLine(int r_i, int c_i, int r_f, int c_f)
     {
         acc = (c_f > c_i)? 1 : -1;
         i = c_i + acc;
-        while(i < c_f - acc)
+        while(i != c_f)
         {
             if (Board[r_i][i] != EMPTY) 
             {
-                ret = 0;
-                break;
+                return 0;
             }
             i += acc;
         }
@@ -179,17 +196,16 @@ int freeLine(int r_i, int c_i, int r_f, int c_f)
     {
         acc = (r_f > r_i)? 1 : -1;
         i = r_i + acc;
-        while(i < r_f - acc)
+        while(i != r_f)
         {
             if (Board[i][c_i] != EMPTY) 
             {
-                ret = 0;
-                break;
+                return 0;
             }
             i += acc;
         }
     }
-    return ret;
+    return 1;
 }
 
 int isValidBishopMove(struct position pi, struct  position pf)
@@ -343,7 +359,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
         else if (riga_i == riga_f - 2 )
         {
             if((colonna_f == colonna_i) && (riga_i == 1) && (Board[riga_i + 1][colonna_i] == EMPTY) && (Board[riga_i + 2][colonna_i] == EMPTY))
-                {
+                { // Fixme: puoi sempre avanzare di 2 col pedone -> usa isValidPawnMove
                     type_pezzo aux = Board[riga_f][colonna_f];
                     Board[riga_i][colonna_i] = EMPTY;
                     Board[riga_f][colonna_f] = W_PAWN;
@@ -610,12 +626,8 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
         }
         return 0;
     case B_QUEEN:
-        if(riga_i != riga_f && colonna_i != colonna_f) // si sta muovendo in diagonale
+        if (goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
         {
-            if (!goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                return 0; // mossa non valida
-            }
             if (freeDiagonal(riga_i, colonna_i, riga_f, colonna_f))
             {
                 type_pezzo aux = Board[riga_f][colonna_f];
@@ -633,14 +645,9 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 lastPieceMoved.c = colonna_f;
                 return 1;
             }
-            return 0;
         }
-        else 
+        else if(goodLine(riga_i, colonna_i, riga_f, colonna_f))
         {
-            if (!goodLine(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                return 0;
-            }
             if (freeLine(riga_i, colonna_i, riga_f, colonna_f))
             {
                 type_pezzo aux = Board[riga_f][colonna_f];
@@ -658,8 +665,8 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 lastPieceMoved.c = colonna_f;
                 return 1;
             }
-            return 0;
         }
+        return 0;
     case W_KING:
         if((riga_i == riga_f || riga_i == riga_f - 1 || riga_i == riga_f + 1) && (colonna_i == colonna_f || colonna_i == colonna_f - 1 || colonna_i == colonna_f + 1))
         {
@@ -1205,8 +1212,8 @@ int checkMate()
     if(turn == WHITE)
     {
         //vedo se il nero è sotto scacco matto
-        int ret_value = CHECK_MATE;
-        for(int i = -1; i <= 1; i++)
+        int ret_value = CHECK_MATE; // invece di i, j usa una position
+        for(int i = -1; i <= 1; i++) // pensa meglio a caso i = 0, j = 0
         {
             for (int j = -1; j < 1; j++)
             {
@@ -1217,7 +1224,8 @@ int checkMate()
                         type_pezzo aux = Board[bKingPosition.r + i][bKingPosition.c + j];
                         Board[bKingPosition.r + i][bKingPosition.c + j] = B_KING;
                         Board[bKingPosition.r][bKingPosition.c] = EMPTY;
-                        if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                        struct position aux_k_position = {.r = bKingPosition.r + i, .c = bKingPosition.c + j};
+                        if(!isItCheck(aux_k_position, BLACK, NOT_OVER_WRITE)) 
                         {
                             Board[bKingPosition.r + i][bKingPosition.c + j] = aux;
                             Board[bKingPosition.r][bKingPosition.c] = B_KING;
@@ -1238,7 +1246,7 @@ int checkMate()
             while(head != NULL)
             {
                 saverPiece = pop();
-                if(isValidMove(saverPiece, lastPieceMoved))
+                if(isValidMove(saverPiece, lastPieceMoved)) // forse superfluo ???
                 {
                     type_pezzo aux;
                     aux = Board[lastPieceMoved.r][lastPieceMoved.c];
@@ -1246,7 +1254,9 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
                     {
-                        return NOT_FINISHED;
+                            Board[saverPiece.r][saverPiece.c] = Board[lastPieceMoved.r][lastPieceMoved.c];
+                            Board[lastPieceMoved.r][lastPieceMoved.c] = aux;
+                            return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[lastPieceMoved.r][lastPieceMoved.c];
                     Board[lastPieceMoved.r][lastPieceMoved.c] = aux;
@@ -1273,7 +1283,7 @@ int checkMate()
                 }
                 if (!checkInBound(i, j)) // non dovrebbe poter succedere ma nel dubbio metto il check
                 {
-                    return CHECK_MATE;
+                    return CHECK_MATE; // ?????
                 }
                 inExamSquare.r = i; inExamSquare.c = j;
             }
@@ -1349,6 +1359,8 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
                     {
+                        Board[saverPiece.r][saverPiece.c] = Board[i][j];
+                        Board[i][j] = aux;
                         return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[i][j];
@@ -1396,6 +1408,8 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
                     {
+                        Board[saverPiece.r][saverPiece.c] = Board[i][j];
+                        Board[i][j] = aux;
                         return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[i][j];
@@ -1422,7 +1436,8 @@ int checkMate()
                         type_pezzo aux = Board[wKingPosition.r + i][wKingPosition.c + j];
                         Board[wKingPosition.r + i][wKingPosition.c + j] = W_KING;
                         Board[wKingPosition.r][wKingPosition.c] = EMPTY;
-                        if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                        struct position aux_k_position = {.r = wKingPosition.r + i, .c = wKingPosition.c + j};
+                        if(!isItCheck(aux_k_position, WHITE, NOT_OVER_WRITE))
                         {
                             Board[wKingPosition.r + i][wKingPosition.c + j] = aux;
                             Board[wKingPosition.r][wKingPosition.c] = W_KING;
@@ -1451,6 +1466,8 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                     {
+                        Board[saverPiece.r][saverPiece.c] = Board[lastPieceMoved.r][lastPieceMoved.c];
+                        Board[lastPieceMoved.r][lastPieceMoved.c] = aux;
                         return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[lastPieceMoved.r][lastPieceMoved.c];
@@ -1554,6 +1571,8 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                     {
+                        Board[saverPiece.r][saverPiece.c] = Board[i][j];
+                        Board[i][j] = aux;
                         return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[i][j];
@@ -1601,6 +1620,8 @@ int checkMate()
                     Board[saverPiece.r][saverPiece.c] = EMPTY;
                     if (!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                     {
+                        Board[saverPiece.r][saverPiece.c] = Board[i][j];
+                        Board[i][j] = aux;
                         return NOT_FINISHED;
                     }
                     Board[saverPiece.r][saverPiece.c] = Board[i][j];

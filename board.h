@@ -29,6 +29,7 @@
 #define CHECK_MATE 1
 #define DRAW -1
 #define NOT_FINISHED 0
+
 #define OVER_WRITE 1 // per la lista dei pezzi che mettono sotto scaccco
 #define NOT_OVER_WRITE 0
 
@@ -45,7 +46,7 @@ struct position_list{
     struct position_list *next;
 };
 
-extern struct position_list* head_list; //lista dei pezzi che mettono sotto scacco un determinato pezzo
+extern struct position_list* head; //lista dei pezzi che mettono sotto scacco un determinato pezzo
 extern struct position wKingPosition;
 extern struct position bKingPosition;
 extern struct position lastPieceMoved;
@@ -57,7 +58,7 @@ extern int turn;
 extern unsigned int castle_privileges;
 extern int game_status;
 
-struct position_list* insert(struct position_list *head, struct position p);
+struct position_list* insert(struct position_list *head, struct position p); //TODO metti aggiungi in testa
 struct position pop();
 void flush_checkmate_aux_list();
 int move(int riga_i, int colonna_i, int riga_f, int colonna_f); // ritorna 1 se la mossa è legale, 0 altrimenti
