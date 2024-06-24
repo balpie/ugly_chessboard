@@ -1,0 +1,14 @@
+# UGLY CHESSBOARD
+c chessboard wild try
+
+features:
+    molte poche
+todo: 
+    en-passant
+    castle
+    50 move rule
+    repetition draw
+    "smothered" draw
+    import games in pgn format
+    export games in pgn format
+
