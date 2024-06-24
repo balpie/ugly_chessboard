@@ -1,0 +1,5 @@
+chess
+*.gch
+.*.swp
+*.idea
+*.json

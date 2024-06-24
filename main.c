@@ -20,7 +20,7 @@ int main()
         {
             if(turn == WHITE)
             {
-                if(isItChech(BLACK)){
+                if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE)){
                     game_status = checkMate();
                     if(game_status == CHECK_MATE)
                     {
@@ -31,7 +31,7 @@ int main()
             }
             else
             {
-                if(isItChech(WHITE))
+                if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                 {
                     game_status = checkMate();
                     if(game_status == CHECK_MATE)
