@@ -3,3 +3,6 @@ chess
 .*.swp
 *.idea
 *.json
+*.png
+*.pgn
+test*

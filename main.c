@@ -5,6 +5,7 @@ int main()
 {
     char mov[4];
     do {
+        system("clear");
         print_chessboard();
         // "1 <= row <= 8, a <= col <= h"
         int count = 0; char c;
@@ -44,6 +45,8 @@ int main()
         }
         system("clear");
     }while(1);
+    system("clear");
+    print_chessboard();
     return 0;
 }
 
