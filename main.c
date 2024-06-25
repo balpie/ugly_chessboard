@@ -1,18 +1,28 @@
 #include "board.h"
 #include <stdlib.h>
 
+void flushStdin()
+{
+    scanf("%*[^\n]");
+    scanf("%*c");
+}
+
 int main()
 {
     char mov[4];
     do {
-        system("clear");
         print_chessboard();
+        if(turn == WHITE)
+            printf("Sta al bianco: ");
+        else
+            printf("Sta al nero: ");
         // "1 <= row <= 8, a <= col <= h"
         int count = 0; char c;
         while (count < 4 && (c = getchar()) != '\n')
         {
             mov[count++] = c;
         }
+        flushStdin();
         mov[0] -= 'a';
         mov[1] -= '1';
         mov[2] -= 'a';
@@ -43,13 +53,9 @@ int main()
                 printf("Scacco Matto!\n");
                 break;
             }
-            if(turn == WHITE)
-                printf("Sta al bianco: ");
-            else
-                printf("Sta al nero: ");
-                    turn = !turn; 
-                }
-        system("clear");
+            turn = !turn; 
+            system("clear");
+        }
     }while(1);
     return 0;
 }
