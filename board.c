@@ -1,15 +1,15 @@
 #include "board.h"
 //scacchiera base
-type_pezzo Board[8][8] = {
-    {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-    {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-    {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-};
+// type_pezzo Board[8][8] = {
+//     {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+//     {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+//     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+// };
 
 //TESTING
 // matto da corridoio bianco
@@ -51,20 +51,34 @@ type_pezzo Board[8][8] = {
 
 //karo smother mate
 // type_pezzo Board[8][8] = {
-//     {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-//     {W_PAWN, W_PAWN, W_PAWN, EMPTY, EMPTY, W_PAWN, W_PAWN, W_PAWN},
+//     {W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+//     {W_PAWN, W_PAWN, W_PAWN, EMPTY, W_QUEEN, W_PAWN, W_PAWN, W_PAWN},
 //     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, W_PAWN, W_PAWN, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {B_PAWN, B_PAWN, EMPTY, EMPTY, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-//     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+//     {EMPTY, EMPTY, EMPTY, W_PAWN, W_KNIGHT, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY, B_KNIGHT, EMPTY, EMPTY},
+//     {B_PAWN, B_PAWN, EMPTY, B_KNIGHT, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+//     {B_ROOK, EMPTY, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 // };
 // struct position lastPieceMoved = {.r = 3, .c = 4};
-// struct position lastFreedCell= {.r = 1, .c = 4};
+// struct position lastFreedCell= {.r = 1, .c = 3};
 
-
+type_pezzo Board[8][8] = {
+    {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+    {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+    {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+    {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+};
 //TESTING
+int numMoves = 0;
+unsigned char whiteEnPassant = 0;
+unsigned char blackEnPassant = 0;
+int wEnPassantMove = -1;
+int bEnPassantMove = -1;
 
 int turn = WHITE;
 unsigned int castle_privileges = WHITE_CASTLE_PRIVILEGE | BLACK_CASTLE_PRIVILEGE;
@@ -76,6 +90,7 @@ struct position wKingPosition = {.r = 0, .c = 4};
 struct position bKingPosition = {.r = 7, .c = 4};
 struct position lastPieceMoved = {.r = -1, .c = -1};
 struct position lastFreedCell= {.r = -1, .c = -1};
+struct position auxLastFreedCell = {.r = -1, .c = -1};
 
 
 struct position_list* insert(struct position_list *l_head, struct position p)
@@ -170,7 +185,6 @@ int isValidKnightMove(int r_i, int c_i, int r_f, int c_f)
     }
     return 0;
 }
-
 
 int goodDiagonal(int r_i, int c_i, int r_f, int c_f)
 {
@@ -365,6 +379,25 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     lastPieceMoved.c = colonna_f;
                     return 1;
                 }
+                if((riga_i == 3) && (whiteEnPassant & (1<<colonna_i))) // en passant
+                {
+                    Board[lastPieceMoved.r][lastPieceMoved.c] = EMPTY;
+                    Board[riga_i][colonna_i] = EMPTY;
+                    Board[riga_f][colonna_f] = W_PAWN;
+                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    {
+                        Board[lastPieceMoved.r][lastPieceMoved.c] = B_PAWN;
+                        Board[riga_i][colonna_i] = W_PAWN;
+                        Board[riga_f][colonna_f] = EMPTY;
+                        return 0;
+                    }
+                    auxLastFreedCell = lastPieceMoved; // pedone mangiato
+                    lastFreedCell.r = riga_i; 
+                    lastFreedCell.c = colonna_i;
+                    lastPieceMoved.r = riga_f;
+                    lastPieceMoved.c = colonna_f;
+                    return 1;
+                }
                 else 
                     return 0;
             }
@@ -410,6 +443,16 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     lastFreedCell.c = colonna_i;
                     lastPieceMoved.r = riga_f;
                     lastPieceMoved.c = colonna_f;
+                    if(Board[riga_f][colonna_f + 1] == B_PAWN)
+                    {
+                        bEnPassantMove = numMoves;
+                        blackEnPassant |= (1<<(colonna_f+1));
+                    }
+                    if(Board[riga_f][colonna_f - 1] == B_PAWN)
+                    {
+                        bEnPassantMove = numMoves;
+                        blackEnPassant |= (1<<(colonna_f-1));
+                    }
                     return 1;
                 }
             else 
@@ -440,6 +483,27 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     lastPieceMoved.c = colonna_f;
                     return 1;
                 }
+                if((riga_i == 3) && (blackEnPassant & (1<<colonna_i))) // en passant
+                {
+                    Board[lastPieceMoved.r][lastPieceMoved.c] = EMPTY;
+                    Board[riga_i][colonna_i] = EMPTY;
+                    Board[riga_f][colonna_f] = B_PAWN;
+                    if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                    {
+                        Board[lastPieceMoved.r][lastPieceMoved.c] = W_PAWN;
+                        Board[riga_i][colonna_i] = B_PAWN;
+                        Board[riga_f][colonna_f] = EMPTY;
+                        return 0;
+                    }
+                    auxLastFreedCell = lastPieceMoved; // pedone mangiato
+                    lastFreedCell.r = riga_i; 
+                    lastFreedCell.c = colonna_i;
+                    lastPieceMoved.r = riga_f;
+                    lastPieceMoved.c = colonna_f;
+                    return 1;
+                }
+                else 
+                    return 0;
             }
             else if (colonna_i == colonna_f)
             {
@@ -481,6 +545,16 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     lastFreedCell.c = colonna_i;
                     lastPieceMoved.r = riga_f;
                     lastPieceMoved.c = colonna_f;
+                    if(Board[riga_f][colonna_f + 1] == W_PAWN)
+                    {
+                        wEnPassantMove = numMoves;
+                        whiteEnPassant |= (1<<(colonna_f+1));
+                    }
+                    if(Board[riga_f][colonna_f - 1] == W_PAWN)
+                    {
+                        wEnPassantMove = numMoves;
+                        whiteEnPassant |= (1<<(colonna_f-1));
+                    }
                     return 1;
                 }
             else return 0;
@@ -1065,7 +1139,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-1, c-2) && Board[r+1][c-2] == B_KNIGHT)
+        else if (checkInBound(r-1, c-2) && Board[r-1][c-2] == B_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1078,7 +1152,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r+2, c+1) && Board[r+1][c+2] == B_KNIGHT)
+        else if (checkInBound(r+2, c+1) && Board[r+2][c+1] == B_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1091,7 +1165,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r+2, c-1) && Board[r+1][c-2] == B_KNIGHT)
+        else if (checkInBound(r+2, c-1) && Board[r+2][c-1] == B_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1104,7 +1178,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-2, c+1) && Board[r-1][c+2] == B_KNIGHT)
+        else if (checkInBound(r-2, c+1) && Board[r-2][c+1] == B_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1117,7 +1191,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-2, c-1) && Board[r+1][c-2] == B_KNIGHT)
+        else if (checkInBound(r-2, c-1) && Board[r-2][c-1] == B_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1172,7 +1246,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-1, c-2) && Board[r+1][c-2] == W_KNIGHT)
+        else if (checkInBound(r-1, c-2) && Board[r-1][c-2] == W_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1185,7 +1259,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r+2, c+1) && Board[r+1][c+2] == W_KNIGHT)
+        else if (checkInBound(r+2, c+1) && Board[r+2][c+1] == W_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1198,7 +1272,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r+2, c-1) && Board[r+1][c-2] == W_KNIGHT)
+        else if (checkInBound(r+2, c-1) && Board[r+2][c-1] == W_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1211,7 +1285,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-2, c+1) && Board[r-1][c+2] == W_KNIGHT)
+        else if (checkInBound(r-2, c+1) && Board[r-2][c+1] == W_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1224,7 +1298,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 return check;
             }
         }
-        else if (checkInBound(r-2, c-1) && Board[r+1][c-2] == W_KNIGHT)
+        else if (checkInBound(r-2, c-1) && Board[r-2][c-1] == W_KNIGHT)
         {
             check = 1;
             if(ow)
@@ -1355,6 +1429,23 @@ int checkMate()
                 }
                 inExamSquare.r = i; inExamSquare.c = j;
             }
+            else if((auxLastFreedCell.r != -1) && goodDiagonal(auxLastFreedCell.r, auxLastFreedCell.c, bKingPosition.r, bKingPosition.c))
+            {
+                int i = bKingPosition.r, j = bKingPosition.c; 
+                int acc_i, acc_j;
+                acc_i = (bKingPosition.r < auxLastFreedCell.r)? 1 : -1;
+                acc_j = (bKingPosition.c < auxLastFreedCell.c)? 1 : -1;
+                while(checkInBound(i, j) && Board[i][j] == EMPTY)
+                {
+                    i+=acc_i;
+                    j+=acc_j;
+                }
+                if (!checkInBound(i, j)) // non dovrebbe poter succedere ma nel dubbio metto il check
+                {
+                    return CHECK_MATE; // ?????
+                }
+                inExamSquare.r = i; inExamSquare.c = j;
+            } 
         }
         if((goodLine(inExamSquare.r, inExamSquare.c, bKingPosition.r, bKingPosition.c)))
         {
@@ -1567,6 +1658,23 @@ int checkMate()
                 }
                 inExamSquare.r = i; inExamSquare.c = j;
             }
+            else if((auxLastFreedCell.r != -1) && goodDiagonal(auxLastFreedCell.r, auxLastFreedCell.c, wKingPosition.r, wKingPosition.c))
+            {
+                int i = wKingPosition.r, j = wKingPosition.c; 
+                int acc_i, acc_j;
+                acc_i = (wKingPosition.r < auxLastFreedCell.r)? 1 : -1;
+                acc_j = (wKingPosition.c < auxLastFreedCell.c)? 1 : -1;
+                while(checkInBound(i, j) && Board[i][j] == EMPTY)
+                {
+                    i+=acc_i;
+                    j+=acc_j;
+                }
+                if (!checkInBound(i, j)) // non dovrebbe poter succedere ma nel dubbio metto il check
+                {
+                    return CHECK_MATE; // ?????
+                }
+                inExamSquare.r = i; inExamSquare.c = j;
+            } 
         }
         if(goodLine(inExamSquare.r, inExamSquare.c, wKingPosition.r, wKingPosition.c))
         {
@@ -1665,7 +1773,6 @@ int checkMate()
                 j = j + acc_j;
             }
         }
-
     }
     return CHECK_MATE;
 } 

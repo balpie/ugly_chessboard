@@ -1,7 +1,7 @@
 #include "board.h"
 #include <stdlib.h>
 
-void flushStdin()
+void flushStdin() // fai header e source file per io
 {
     scanf("%*[^\n]");
     scanf("%*c");
@@ -11,6 +11,7 @@ int main()
 {
     char mov[4];
     do {
+        system("clear");
         print_chessboard();
         if(turn == WHITE)
             printf("Sta al bianco: ");
@@ -55,6 +56,23 @@ int main()
             }
             turn = !turn; 
             system("clear");
+            if(bEnPassantMove != -1)
+            {
+                if(bEnPassantMove == numMoves + 1)
+                {
+                    blackEnPassant = 0;
+                    bEnPassantMove = -1;
+                }
+            }
+            if(wEnPassantMove != -1)
+            {
+                if(bEnPassantMove == numMoves + 1)
+                {
+                    whiteEnPassant = 0;
+                    wEnPassantMove = -1;
+                }
+            }
+            numMoves++;
         }
     }while(1);
     return 0;

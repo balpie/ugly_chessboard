@@ -23,6 +23,15 @@
 #define B_KNIGHT 'n'
 #define B_PAWN 'p'
 
+#define COL_A 1 // forse non necessarie 
+#define COL_B 2
+#define COL_C 4
+#define COL_D 8
+#define COL_E 16
+#define COL_F 32
+#define COL_G 64
+#define COL_H 128
+
 #define WHITE_CASTLE_PRIVILEGE 1
 #define BLACK_CASTLE_PRIVILEGE 2
 
@@ -46,17 +55,27 @@ struct position_list{
     struct position_list *next;
 };
 
+
 extern struct position_list* head; //lista dei pezzi che mettono sotto scacco un determinato pezzo
 extern struct position wKingPosition;
 extern struct position bKingPosition;
 extern struct position lastPieceMoved;
 extern struct position lastFreedCell;
+extern struct position auxLastFreedCell;
 
+// location
+extern unsigned char whiteEnPassant;
+extern unsigned char blackEnPassant;
+
+// time
+extern int wEnPassantMove;
+extern int bEnPassantMove;
 
 extern type_pezzo Board[8][8];
 extern int turn;
 extern unsigned int castle_privileges;
 extern int game_status;
+extern int numMoves;
 
 struct position_list* insert(struct position_list *head, struct position p); //TODO metti aggiungi in testa
 struct position pop();
