@@ -1,15 +1,15 @@
 #include "board.h"
-
-type_pezzo Board[8][8] = {
-    {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-    {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-    {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-    {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-};
+// scacchiera base
+// type_pezzo Board[8][8] = {
+//     {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+//     {W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+//     {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
+//     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+// };
 
 //TESTING
 // matto da corridoio bianco
@@ -36,8 +36,17 @@ type_pezzo Board[8][8] = {
 //    {B_KING, EMPTY, EMPTY, EMPTY, EMPTY, B_BISHOP, B_KNIGHT, B_ROOK},
 //};
 
-// struct position wKingPosition = {.r = 0, .c = 4};
-// struct position bKingPosition = {.r = 7, .c = 0};
+// Dutch defense mate 
+ type_pezzo Board[8][8] = {
+     {W_ROOK, W_KNIGHT, EMPTY, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
+     {W_PAWN, W_PAWN, W_PAWN, EMPTY, EMPTY, W_PAWN, W_PAWN, W_PAWN},
+     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+     {EMPTY, EMPTY, EMPTY, W_PAWN, W_PAWN, EMPTY, EMPTY, B_PAWN},
+     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY},
+     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, B_PAWN},
+     {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, EMPTY, EMPTY, EMPTY},
+     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
+ };
 
 //TESTING
 
@@ -749,10 +758,6 @@ void print_chessboard()
         printf("%d\n", i+1);
     }
     printf("_________________________\n");
-    if(turn == WHITE)
-        printf("Sta al bianco: ");
-    else
-        printf("Sta al nero: ");
 }
 
 int isItCheck(struct position inExamPiece, int color, int ow) 
@@ -1335,7 +1340,7 @@ int checkMate()
                 inExamSquare.r = i; inExamSquare.c = j;
             }
         }
-        if((Board[inExamSquare.r][inExamSquare.c] == W_QUEEN) || (Board[inExamSquare.r][inExamSquare.c] == W_ROOK))
+        if((goodLine(inExamSquare.r, inExamSquare.c, bKingPosition.r, bKingPosition.c)))
         {
             int i = bKingPosition.r, j = bKingPosition.c;
             int acc_i, acc_j;
@@ -1383,7 +1388,7 @@ int checkMate()
                 j = j + acc_j;
             }
         }
-        else if((Board[inExamSquare.r][inExamSquare.c] == W_QUEEN) || (Board[inExamSquare.r][inExamSquare.c] == W_BISHOP))
+        else if(goodDiagonal(inExamSquare.r, inExamSquare.c, bKingPosition.r, bKingPosition.c))
         {
             int i = bKingPosition.r, j = bKingPosition.c;
             int acc_i, acc_j;
@@ -1547,7 +1552,7 @@ int checkMate()
                 inExamSquare.r = i; inExamSquare.c = j;
             }
         }
-        if((Board[inExamSquare.r][inExamSquare.c] == B_QUEEN) || (Board[inExamSquare.r][inExamSquare.c] == B_ROOK))
+        if(goodLine(inExamSquare.r, inExamSquare.c, wKingPosition.r, wKingPosition.c))
         {
             int i = wKingPosition.r, j = wKingPosition.c;
             int acc_i, acc_j;
@@ -1595,7 +1600,7 @@ int checkMate()
                 j = j + acc_j;
             }
         }
-        else if((Board[inExamSquare.r][inExamSquare.c] == B_QUEEN) || (Board[inExamSquare.r][inExamSquare.c] == B_BISHOP))
+        else if(goodDiagonal(inExamSquare.r, inExamSquare.c, wKingPosition.r, wKingPosition.c))
         {
             int i = wKingPosition.r, j = wKingPosition.c;
             int acc_i, acc_j;

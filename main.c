@@ -38,15 +38,19 @@ int main()
             }
             if(game_status == CHECK_MATE)
             {
+                system("clear");
+                print_chessboard();
                 printf("Scacco Matto!\n");
                 break;
             }
-            turn = !turn; 
-        }
+            if(turn == WHITE)
+                printf("Sta al bianco: ");
+            else
+                printf("Sta al nero: ");
+                    turn = !turn; 
+                }
         system("clear");
     }while(1);
-    system("clear");
-    print_chessboard();
     return 0;
 }
 
