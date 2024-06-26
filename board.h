@@ -32,8 +32,10 @@
 #define COL_G 64
 #define COL_H 128
 
-#define WHITE_CASTLE_PRIVILEGE 1
-#define BLACK_CASTLE_PRIVILEGE 2
+#define WHITE_CASTLE_SHORT_PRIVILEGE 1
+#define WHITE_CASTLE_LONG_PRIVILEGE 2
+#define BLACK_CASTLE_SHORT_PRIVILEGE 4
+#define BLACK_CASTLE_LONG_PRIVILEGE 8
 
 #define CHECK_MATE 1
 #define DRAW -1
@@ -73,7 +75,7 @@ extern int bEnPassantMove;
 
 extern type_pezzo Board[8][8];
 extern int turn;
-extern unsigned int castle_privileges;
+extern unsigned short int castle_privileges;
 extern int game_status;
 extern int numMoves;
 

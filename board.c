@@ -18,7 +18,7 @@ int wEnPassantMove = -1;
 int bEnPassantMove = -1;
 
 int turn = WHITE;
-unsigned int castle_privileges = WHITE_CASTLE_PRIVILEGE | BLACK_CASTLE_PRIVILEGE;
+unsigned short int castle_privileges = WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE;
 int game_status = NOT_FINISHED;
 
 struct position_list *head = NULL;
@@ -466,7 +466,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
             else 
                 return 0;
         }
-        else if (riga_i == riga_f + 2 ) // considera ipotesi enpassant
+        else if (riga_i == riga_f + 2 ) 
             if(colonna_f == colonna_i && riga_i == 6 && Board[riga_i - 1][colonna_i] == EMPTY && Board[riga_i - 2][colonna_i] == EMPTY)
                 {
                     type_pezzo aux = Board[riga_f][colonna_f];
@@ -602,6 +602,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
             lastFreedCell.c = colonna_i;
             lastPieceMoved.r = riga_f;
             lastPieceMoved.c = colonna_f;
+            castle_privileges &= (~((colonna_i == 7)? WHITE_CASTLE_SHORT_PRIVILEGE : WHITE_CASTLE_LONG_PRIVILEGE));
             return 1;
         }
         return 0;
@@ -625,6 +626,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
             lastFreedCell.c = colonna_i;
             lastPieceMoved.r = riga_f;
             lastPieceMoved.c = colonna_f;
+            castle_privileges &= (~((colonna_i == 7)? BLACK_CASTLE_SHORT_PRIVILEGE : BLACK_CASTLE_LONG_PRIVILEGE));
             return 1;
         }
         return 0;
@@ -716,7 +718,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
         }
         return 0;
     case W_KING:
-        if((riga_i == riga_f || riga_i == riga_f - 1 || riga_i == riga_f + 1) && (colonna_i == colonna_f || colonna_i == colonna_f - 1 || colonna_i == colonna_f + 1))
+        if((abs(riga_i - riga_f) <= 1) && abs(colonna_i - colonna_f) <= 1)
         {
             type_pezzo aux = Board[riga_f][colonna_f];
             Board[riga_i][colonna_i] = EMPTY;
@@ -735,12 +737,62 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 lastFreedCell.c = colonna_i;
                 lastPieceMoved.r = riga_f;
                 lastPieceMoved.c = colonna_f;
+                castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
                 return 1;
             }
         }
-        else return 0;
+        else if((riga_f == 0) && (colonna_f == 6) && (castle_privileges & WHITE_CASTLE_SHORT_PRIVILEGE))
+        {
+            if(freeLine(riga_i, colonna_i, riga_f, colonna_f + 1)){
+                int legalCastle = 1;
+                for(struct position aux = wKingPosition; aux.c <= colonna_f; aux.c++)
+                if(isItCheck(aux, WHITE, NOT_OVER_WRITE))
+                {
+                    legalCastle = 0;
+                    break;
+                }
+                if(legalCastle)
+                { // non aggiorno l'ultima cella liberata in quanto non serve
+                    Board[0][7] = EMPTY;
+                    Board[riga_i][colonna_i] = W_ROOK;
+                    Board[riga_f][colonna_f] = W_KING;
+                    wKingPosition.r = riga_f;
+                    wKingPosition.c = colonna_f;
+                    lastPieceMoved.r = riga_i; //nuova posizione della torre
+                    lastPieceMoved.c = colonna_i;
+                    castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset white castle privilege
+                    return 1;
+                }
+            }
+        }
+        else if((riga_f == 0) && (colonna_f == 2) && (castle_privileges & WHITE_CASTLE_LONG_PRIVILEGE))
+        {
+            if(freeLine(riga_i, colonna_i, riga_f, colonna_f - 1)){
+                int legalCastle = 1;
+                for(struct position aux = wKingPosition; aux.c <= colonna_f; aux.c++)
+                if(isItCheck(aux, WHITE, NOT_OVER_WRITE))
+                {
+                    legalCastle = 0;
+                    break;
+                }
+                if(legalCastle)
+                {
+                    Board[0][0] = EMPTY;
+                    Board[riga_i][colonna_i - 1] = W_ROOK;
+                    Board[riga_f][colonna_f] = W_KING;
+                    wKingPosition.r = riga_f;
+                    wKingPosition.c = colonna_f;
+                    lastPieceMoved.r = riga_i;
+                    lastPieceMoved.c = colonna_i - 1;
+                    castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset wite castle privilege
+                    return 1;
+                }
+            }
+            return 0;
+        }
+        return 0;
     case B_KING:
-        if((riga_i == riga_f || riga_i == riga_f - 1 || riga_i == riga_f + 1) && (colonna_i == colonna_f || colonna_i == colonna_f - 1 || colonna_i == colonna_f + 1))
+        if((abs(riga_i - riga_f) <= 1) && abs(colonna_i - colonna_f) <= 1)
         {
             type_pezzo aux = Board[riga_f][colonna_f];
             Board[riga_i][colonna_i] = EMPTY;
@@ -759,10 +811,59 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 lastPieceMoved.c = colonna_f;
                 bKingPosition.r = riga_f;
                 bKingPosition.c = colonna_f;
+                castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
                 return 1;
             }
         }
-        else return 0;
+        else if((riga_f == 7) && (colonna_f == 6) && (castle_privileges & BLACK_CASTLE_SHORT_PRIVILEGE))
+        {
+            if(freeLine(riga_i, colonna_i, riga_f, colonna_f + 1)){
+                int legalCastle = 1;
+                for(struct position aux = bKingPosition; aux.c <= colonna_f; aux.c++)
+                if(isItCheck(aux, BLACK, NOT_OVER_WRITE))
+                {
+                    legalCastle = 0;
+                    break;
+                }
+                if(legalCastle)
+                {
+                    Board[7][7] = EMPTY;
+                    Board[riga_i][colonna_i] = B_ROOK;
+                    Board[riga_f][colonna_f] = B_KING;
+                    bKingPosition.r = riga_f;
+                    bKingPosition.c = colonna_f;
+                    lastPieceMoved.r = riga_i;
+                    lastPieceMoved.c = colonna_i;
+                    castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
+                    return 1;
+                }
+            }
+        }
+        else if((riga_f == 0) && (colonna_f == 2) && (castle_privileges & BLACK_CASTLE_LONG_PRIVILEGE))
+        {
+            if(freeLine(riga_i, colonna_i, riga_f, colonna_f - 1)){
+                int legalCastle = 1;
+                for(struct position aux = bKingPosition; aux.c <= colonna_f; aux.c++)
+                if(isItCheck(aux, BLACK, NOT_OVER_WRITE))
+                {
+                    legalCastle = 0;
+                    break;
+                }
+                if(legalCastle)
+                {
+                    Board[7][0] = EMPTY;
+                    Board[riga_i][colonna_i - 1] = B_ROOK;
+                    Board[riga_f][colonna_f] = B_KING;
+                    bKingPosition.r = riga_f;
+                    bKingPosition.c = colonna_f;
+                    lastPieceMoved.r = riga_i;
+                    lastPieceMoved.c = colonna_i - 1;
+                    castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
+                    return 1;
+                }
+            }
+        }
+        return 0;
     default:
         break;
     }
