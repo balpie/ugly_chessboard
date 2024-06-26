@@ -11,69 +11,6 @@ type_pezzo Board[8][8] = {
     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 };
 
-//TESTING
-// matto da corridoio bianco
-// type_pezzo Board[8][8] = {
-// {W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, EMPTY, EMPTY, W_KING, W_ROOK},
-// {W_PAWN, W_PAWN, W_PAWN, EMPTY, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-// {EMPTY, EMPTY, EMPTY, B_ROOK, EMPTY, EMPTY, EMPTY, EMPTY},
-// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-// {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-// {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-// {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-// };
-
-// matto da corridoio nero 
-//type_pezzo Board[8][8] = {
-//    {W_ROOK, W_KNIGHT, W_BISHOP, W_PAWN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-//    {W_PAWN, W_PAWN, W_PAWN, W_QUEEN, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//    {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//    {B_PAWN, B_PAWN, B_PAWN, EMPTY, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-//    {B_KING, EMPTY, EMPTY, EMPTY, EMPTY, B_BISHOP, B_KNIGHT, B_ROOK},
-//};
-
-// Dutch defense mate 
-// type_pezzo Board[8][8] = {
-//     {W_ROOK, W_KNIGHT, EMPTY, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-//     {W_PAWN, W_PAWN, W_PAWN, EMPTY, EMPTY, W_PAWN, W_PAWN, W_PAWN},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, W_PAWN, W_PAWN, EMPTY, EMPTY, B_PAWN},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, B_PAWN},
-//     {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, EMPTY, EMPTY, EMPTY},
-//     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-// };
-
-
-//karo smother mate
-// type_pezzo Board[8][8] = {
-//     {W_ROOK, W_KNIGHT, W_BISHOP, EMPTY, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-//     {W_PAWN, W_PAWN, W_PAWN, EMPTY, W_QUEEN, W_PAWN, W_PAWN, W_PAWN},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, W_PAWN, W_KNIGHT, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, B_PAWN, EMPTY, EMPTY, B_KNIGHT, EMPTY, EMPTY},
-//     {B_PAWN, B_PAWN, EMPTY, B_KNIGHT, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-//     {B_ROOK, EMPTY, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-// };
-// struct position lastPieceMoved = {.r = 3, .c = 4};
-// struct position lastFreedCell= {.r = 1, .c = 3};
-
-// type_pezzo Board[8][8] = { //check en passant
-//     {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},
-//     {W_PAWN, W_PAWN, W_PAWN, EMPTY, W_PAWN, W_PAWN, W_PAWN, W_PAWN},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, W_PAWN, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-//     {B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN, B_PAWN},
-//     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
-// };
-//TESTING
 int numMoves = 0;
 unsigned char whiteEnPassant = 0;
 unsigned char blackEnPassant = 0;
@@ -1325,22 +1262,25 @@ int checkMate()
         {
             for (int j = -1; j < 1; j++)
             {
-                if(checkInBound(bKingPosition.r+i, bKingPosition.c+j)) 
+                if (!((i == 0) && (j == 0)))
                 {
-                    if(!isBlackPiece(Board[bKingPosition.r + i][bKingPosition.c + j]))
+                    if(checkInBound(bKingPosition.r+i, bKingPosition.c+j)) 
                     {
-                        type_pezzo aux = Board[bKingPosition.r + i][bKingPosition.c + j];
-                        Board[bKingPosition.r + i][bKingPosition.c + j] = B_KING;
-                        Board[bKingPosition.r][bKingPosition.c] = EMPTY;
-                        struct position aux_k_position = {.r = bKingPosition.r + i, .c = bKingPosition.c + j};
-                        if(!isItCheck(aux_k_position, BLACK, NOT_OVER_WRITE)) 
+                        if(!isBlackPiece(Board[bKingPosition.r + i][bKingPosition.c + j]))
                         {
+                            type_pezzo aux = Board[bKingPosition.r + i][bKingPosition.c + j];
+                            Board[bKingPosition.r + i][bKingPosition.c + j] = B_KING;
+                            Board[bKingPosition.r][bKingPosition.c] = EMPTY;
+                            struct position aux_k_position = {.r = bKingPosition.r + i, .c = bKingPosition.c + j};
+                            if(!isItCheck(aux_k_position, BLACK, NOT_OVER_WRITE)) 
+                            {
+                                Board[bKingPosition.r + i][bKingPosition.c + j] = aux;
+                                Board[bKingPosition.r][bKingPosition.c] = B_KING;
+                                return NOT_FINISHED;
+                            }
                             Board[bKingPosition.r + i][bKingPosition.c + j] = aux;
                             Board[bKingPosition.r][bKingPosition.c] = B_KING;
-                            return NOT_FINISHED;
                         }
-                        Board[bKingPosition.r + i][bKingPosition.c + j] = aux;
-                        Board[bKingPosition.r][bKingPosition.c] = B_KING;
                     }
                 }
             }
@@ -1554,22 +1494,25 @@ int checkMate()
         {
             for (int j = -1; j < 1; j++)
             {
-                if(checkInBound(wKingPosition.r+i, wKingPosition.c+j)) 
+                if (!((i == 0) && (j == 0)))
                 {
-                    if(!isWhitePiece(Board[wKingPosition.r + i][wKingPosition.c + j]))
+                    if(checkInBound(wKingPosition.r+i, wKingPosition.c+j)) 
                     {
-                        type_pezzo aux = Board[wKingPosition.r + i][wKingPosition.c + j];
-                        Board[wKingPosition.r + i][wKingPosition.c + j] = W_KING;
-                        Board[wKingPosition.r][wKingPosition.c] = EMPTY;
-                        struct position aux_k_position = {.r = wKingPosition.r + i, .c = wKingPosition.c + j};
-                        if(!isItCheck(aux_k_position, WHITE, NOT_OVER_WRITE))
+                        if(!isWhitePiece(Board[wKingPosition.r + i][wKingPosition.c + j]))
                         {
+                            type_pezzo aux = Board[wKingPosition.r + i][wKingPosition.c + j];
+                            Board[wKingPosition.r + i][wKingPosition.c + j] = W_KING;
+                            Board[wKingPosition.r][wKingPosition.c] = EMPTY;
+                            struct position aux_k_position = {.r = wKingPosition.r + i, .c = wKingPosition.c + j};
+                            if(!isItCheck(aux_k_position, WHITE, NOT_OVER_WRITE))
+                            {
+                                Board[wKingPosition.r + i][wKingPosition.c + j] = aux;
+                                Board[wKingPosition.r][wKingPosition.c] = W_KING;
+                                return NOT_FINISHED;
+                            }
                             Board[wKingPosition.r + i][wKingPosition.c + j] = aux;
                             Board[wKingPosition.r][wKingPosition.c] = W_KING;
-                            return NOT_FINISHED;
                         }
-                        Board[wKingPosition.r + i][wKingPosition.c + j] = aux;
-                        Board[wKingPosition.r][wKingPosition.c] = W_KING;
                     }
                 }
             }
