@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <malloc.h>
-
 #ifndef BOARD_HEADER
 #define BOARD_HEADER
+
+#include <stdio.h>
+#include <malloc.h>
 
 #define WHITE 0
 #define BLACK 1
@@ -112,5 +112,10 @@ int isItCheck(struct position inExamPiece, int color, int ow);
 /// @brief valuta se la partita è finita per scacco matto
 /// @return 1 se è scacco matto, 0 altrimenti
 int checkMate(); // ritorna 1 se l'utima mossa ha generato matto, 0 se la partita può continuare
+
+/// @brief controlla se c'è stata una promozione
+/// @param color turno per cui controllare la promozione pendente
+/// @return la colonna del pedone promosso se c'è stata una promozione, 0 altrimenti
+int promotion(int color);
 
 #endif

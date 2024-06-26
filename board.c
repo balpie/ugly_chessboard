@@ -1719,3 +1719,15 @@ int checkMate()
     }
     return CHECK_MATE;
 } 
+
+int promotion(int color)
+{
+        for(int i = 0; i < 8; i++)
+            if(color == WHITE)
+                if(Board[7][i] == W_PAWN)
+                    return i;
+            else
+                if(Board[0][i] == B_PAWN)
+                    return i;
+    return 0;
+}

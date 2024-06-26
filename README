@@ -4,8 +4,8 @@ c chessboard wild try
 features:
     molte poche
 todo: 
-    en-passant
     castle
+    promotion
     50 move rule
     repetition draw
     "smothered" draw

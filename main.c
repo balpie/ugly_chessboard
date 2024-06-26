@@ -1,4 +1,5 @@
 #include "board.h"
+#include "input-output.h"
 #include <stdlib.h>
 
 void flushStdin() // fai header e source file per io
@@ -30,8 +31,15 @@ int main()
         mov[3] -= '1';
         if(move(mov[1], mov[0], mov[3], mov[2]))
         {
+            int promoted;
             if(turn == WHITE)
             {
+                if(promoted = promotion(WHITE))
+                {
+                    type_pezzo newPiece;
+                    newPiece = inputPiece(WHITE);
+                    Board[7][promoted] = newPiece;
+                }
                 if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE)){
                     printf("Scacco!\n");
                     system("sleep 1");
@@ -40,6 +48,12 @@ int main()
             }
             else
             {
+                if(promoted = promotion(BLACK))
+                {
+                    type_pezzo newPiece;
+                    newPiece = inputPiece(BLACK);
+                    Board[0][promoted] = newPiece;
+                }
                 if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
                 {
                     printf("Scacco!\n");
