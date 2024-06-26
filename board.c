@@ -744,10 +744,10 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
         {
             type_pezzo aux = Board[riga_f][colonna_f];
             Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = W_KING;
-            if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+            Board[riga_f][colonna_f] = B_KING;
+            if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
             {
-                Board[riga_i][colonna_i] = W_KING;
+                Board[riga_i][colonna_i] = B_KING;
                 Board[riga_f][colonna_f] = aux;
                 return 0;
             }
