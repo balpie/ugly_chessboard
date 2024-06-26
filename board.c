@@ -798,296 +798,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
     {
         return 0; // non può essere scacco fuori dalla scacchiera
     }
-    int i = r + 1, j = c; //scorro verso l'alto
-    while(checkInBound(i, j))  //ciclo "linee"
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            i++;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso l'alto ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r - 1, j = c; //scorro verso il basso 
-    while(checkInBound(i, j))  //ciclo "linee"
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            i--;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r, j = c + 1; //scorro verso destra
-    while(checkInBound(i, j))  //ciclo "linee"
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j++;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r, j = c - 1; //scorro verso sinistra
-    while(checkInBound(i, j))  //ciclo "linee"
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j--;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r + 1, j = c + 1; //diagonale alto dx
-    // check pedone alto dx
-    if((Board[i][j] == B_PAWN) && color == WHITE) //check pedone
-    {
-        check = 1;
-        if(ow)
-        {
-            struct position paux = {.r = i, .c = j};
-            head = insert(head, paux);
-        }
-        else
-        {
-            return check;
-        }
-    }
-    while(checkInBound(i, j))  
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j++;
-            i++;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r + 1, j = c - 1; //diagonale alto sx
-    if((Board[i][j] == B_PAWN) && color == WHITE) // check pedone
-    {
-        check = 1;
-        if(ow)
-        {
-            struct position paux = {.r = i, .c = j};
-            head = insert(head, paux);
-        }
-        else
-        {
-            return check;
-        }
-    }
-    while(checkInBound(i, j))  
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j--;
-            i++;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r - 1, j = c - 1; //diagonale basso sx
-    if((Board[i][j] == W_PAWN) && color == BLACK) // check pedone
-    {
-        check = 1;
-        if(ow)
-        {
-            struct position paux = {.r = i, .c = j};
-            head = insert(head, paux);
-        }
-        else
-        {
-            return check;
-        }
-    }
-    while(checkInBound(i, j))  
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j--;
-            i--;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    i = r - 1, j = c + 1; //diagonale basso dx
-    if((Board[i][j] == W_PAWN) && color == BLACK) // check pedone
-    {
-        check = 1;
-        if(ow)
-        {
-            struct position paux = {.r = i, .c = j};
-            head = insert(head, paux);
-        }
-        else
-        {
-            return check;
-        }
-    }
-    while(checkInBound(i, j))  
-    {
-        if(Board[i][j] == EMPTY)
-        {
-            j++;
-            i--;
-        }
-        else
-        {
-            if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
-            {
-                break; // verso il basso ci sono case vuote e/o un pezzo dello stesso colore
-            }
-            if((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN))
-            {
-                check = 1;
-                if(ow)
-                {
-                    struct position paux = {.r = i, .c = j};
-                    head = insert(head, paux);
-                }
-                else
-                {
-                    return check;
-                }
-            }
-            break;
-        }
-    };
-    //check cavalli
+    //check cavalli, pensa a come migliorare
     if(color == WHITE)
     {
         if (checkInBound(r+1, c+2) && Board[r+1][c+2] == B_KNIGHT)
@@ -1095,7 +806,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+1, .c = c+2};
                 head = insert(head, paux);
             }
             else
@@ -1108,7 +819,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+1, .c = c-2};
                 head = insert(head, paux);
             }
             else
@@ -1121,7 +832,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-1, .c = c+2};
                 head = insert(head, paux);
             }
             else
@@ -1134,7 +845,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-1, .c = c-2};
                 head = insert(head, paux);
             }
             else
@@ -1147,7 +858,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+2, .c = c+1};
                 head = insert(head, paux);
             }
             else
@@ -1160,7 +871,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+2, .c = c-1};
                 head = insert(head, paux);
             }
             else
@@ -1173,7 +884,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-2, .c = c+1};
                 head = insert(head, paux);
             }
             else
@@ -1186,7 +897,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-2, .c = c-1};
                 head = insert(head, paux);
             }
             else
@@ -1202,7 +913,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+1, .c = c+2};
                 head = insert(head, paux);
             }
             else
@@ -1215,7 +926,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+1, .c = c-2};
                 head = insert(head, paux);
             }
             else
@@ -1228,7 +939,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-1, .c = c+2};
                 head = insert(head, paux);
             }
             else
@@ -1241,7 +952,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-1, .c = c-2};
                 head = insert(head, paux);
             }
             else
@@ -1254,7 +965,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+2, .c = c+1};
                 head = insert(head, paux);
             }
             else
@@ -1267,7 +978,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r+2, .c = c-1};
                 head = insert(head, paux);
             }
             else
@@ -1280,7 +991,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-2, .c = c+1};
                 head = insert(head, paux);
             }
             else
@@ -1293,12 +1004,100 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             check = 1;
             if(ow)
             {
-                struct position paux = {.r = i, .c = j};
+                struct position paux = {.r = r-2, .c = c-1};
                 head = insert(head, paux);
             }
             else
             {
                 return check;
+            }
+        }
+    }
+    // check pedone basso sx
+    if(((Board[r + 1][c - 1] == B_PAWN)) && color == WHITE) 
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = r + 1, .c = c - 1};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    // check pedone basso dx
+    if((Board[r + 1][c + 1] == B_PAWN) && color == WHITE) //check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = r + 1, .c = c + 1};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    if((Board[r - 1][c - 1] == W_PAWN) && color == BLACK) // check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = r - 1, .c = c - 1};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    if((Board[r - 1][c + 1] == W_PAWN) && color == BLACK) // check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = r - 1, .c = c + 1};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    
+    for(int acc_i = -1; acc_i <= 1; acc_i++)
+    {
+        for(int acc_j = -1; acc_j <= 1; acc_j++)
+        {
+            int i = r, j = c;
+            if (!((acc_i == 0) && (acc_j == 0)))
+            {
+                i += acc_i; j += acc_j;
+                while(checkInBound(i, j)) // qualche check tipo se non empty esci?!?!?!?
+                {
+                    if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
+                    {
+                        break; // incontrata casa dello stesso colore, non può farmi scacco
+                    }
+                    if((((Board[i][j] == W_ROOK) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_ROOK) || (Board[i][j] == B_QUEEN)) && goodLine(i, j, r, c)) || (((Board[i][j] == W_BISHOP) || (Board[i][j] == W_QUEEN) || (Board[i][j] == B_BISHOP) || (Board[i][j] == B_QUEEN)) && goodDiagonal(i, j, r, c)))
+                    {
+                        check = 1;
+                        if(ow)
+                        {
+                            struct position paux = {.r = i, .c = j};
+                            head = insert(head, paux);
+                            break;
+                        }
+                        else
+                        {
+                            return check;
+                        }
+                    }
+                    i += acc_i; j += acc_j;
+                }
             }
         }
     }
