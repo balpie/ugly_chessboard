@@ -31,10 +31,10 @@ int main()
         mov[3] -= '1';
         if(move(mov[1], mov[0], mov[3], mov[2]))
         {
-            int promoted;
+            int promoted = promotion(turn);
             if(turn == WHITE)
             {
-                if(promoted = promotion(WHITE))
+                if(promoted)
                 {
                     type_pezzo newPiece;
                     newPiece = inputPiece(WHITE);
@@ -48,7 +48,7 @@ int main()
             }
             else
             {
-                if(promoted = promotion(BLACK))
+                if(promoted)
                 {
                     type_pezzo newPiece;
                     newPiece = inputPiece(BLACK);

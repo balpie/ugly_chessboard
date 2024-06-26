@@ -915,7 +915,21 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         }
     };
     i = r + 1, j = c + 1; //diagonale alto dx
-    while(checkInBound(i, j))  //ciclo "linee"
+    // check pedone alto dx
+    if((Board[i][j] == B_PAWN) && color == WHITE) //check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = i, .c = j};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    while(checkInBound(i, j))  
     {
         if(Board[i][j] == EMPTY)
         {
@@ -945,7 +959,20 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         }
     };
     i = r + 1, j = c - 1; //diagonale alto sx
-    while(checkInBound(i, j))  //ciclo "linee"
+    if((Board[i][j] == B_PAWN) && color == WHITE) // check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = i, .c = j};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    while(checkInBound(i, j))  
     {
         if(Board[i][j] == EMPTY)
         {
@@ -975,7 +1002,20 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         }
     };
     i = r - 1, j = c - 1; //diagonale basso sx
-    while(checkInBound(i, j))  //ciclo "linee"
+    if((Board[i][j] == W_PAWN) && color == BLACK) // check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = i, .c = j};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    while(checkInBound(i, j))  
     {
         if(Board[i][j] == EMPTY)
         {
@@ -1005,7 +1045,20 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         }
     };
     i = r - 1, j = c + 1; //diagonale basso dx
-    while(checkInBound(i, j))  //ciclo "linee"
+    if((Board[i][j] == W_PAWN) && color == BLACK) // check pedone
+    {
+        check = 1;
+        if(ow)
+        {
+            struct position paux = {.r = i, .c = j};
+            head = insert(head, paux);
+        }
+        else
+        {
+            return check;
+        }
+    }
+    while(checkInBound(i, j))  
     {
         if(Board[i][j] == EMPTY)
         {
