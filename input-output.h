@@ -8,5 +8,7 @@
 
 /// @brief preleva da stdin un type_pezzo
 type_pezzo inputPiece();
+void inputMove(struct position* mov);
 
+// fai funzioni gestione errori !!!
 #endif

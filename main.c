@@ -2,15 +2,9 @@
 #include "input-output.h"
 #include <stdlib.h>
 
-void flushStdin() // fai header e source file per io
-{
-    scanf("%*[^\n]");
-    scanf("%*c");
-}
-
 int main()
 {
-    char mov[4];
+    struct position mov[2];
     do {
         system("clear");
         print_chessboard();
@@ -19,17 +13,8 @@ int main()
         else
             printf("Black turn\n-& ");
         // "1 <= row <= 8, a <= col <= h"
-        int count = 0; char c;
-        while (count < 4 && (c = getchar()) != '\n')
-        {
-            mov[count++] = c;
-        }
-        flushStdin();
-        mov[0] -= 'a';
-        mov[1] -= '1';
-        mov[2] -= 'a';
-        mov[3] -= '1';
-        if(move(mov[1], mov[0], mov[3], mov[2]))
+        inputMove(mov);
+        if(move(mov[0].r, mov[0].c, mov[1].r, mov[1].c))
         {
             int promoted = promotion(turn);
             if(turn == WHITE)
