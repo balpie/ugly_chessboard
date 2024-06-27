@@ -1,4 +1,4 @@
-#include "board.h"
+#include "game.h"
 //scacchiera base
 type_pezzo Board[8][8] = {
     {W_ROOK, W_KNIGHT, W_BISHOP, W_QUEEN, W_KING, W_BISHOP, W_KNIGHT, W_ROOK},

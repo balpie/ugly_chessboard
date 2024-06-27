@@ -1,4 +1,4 @@
-#include "board.h"
+#include "game.h"
 #include "input-output.h"
 #include <stdlib.h>
 
@@ -15,9 +15,9 @@ int main()
         system("clear");
         print_chessboard();
         if(turn == WHITE)
-            printf("Sta al bianco: ");
+            printf("White turn\n-& ");
         else
-            printf("Sta al nero: ");
+            printf("Black turn\n-& ");
         // "1 <= row <= 8, a <= col <= h"
         int count = 0; char c;
         while (count < 4 && (c = getchar()) != '\n')
@@ -37,7 +37,9 @@ int main()
                 if(promoted)
                 {
                     type_pezzo newPiece;
-                    newPiece = inputPiece(WHITE);
+                    while(!isWhitePiece(newPiece = inputPiece())){
+                        printf("Colore sbagliato!\n-& ");
+                    }
                     Board[7][promoted] = newPiece;
                 }
                 if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE)){
@@ -51,7 +53,9 @@ int main()
                 if(promoted)
                 {
                     type_pezzo newPiece;
-                    newPiece = inputPiece(BLACK);
+                    while(!isBlackPiece(newPiece = inputPiece())){
+                        printf("Colore sbagliato!\n-& ");
+                    }
                     Board[0][promoted] = newPiece;
                 }
                 if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
