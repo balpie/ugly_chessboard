@@ -1,2 +1,15 @@
-make:
-	g++ -g -W -o chess input-output.c game.c main.c
+SRCDIR = src
+INCDIR = include
+BINDIR = bin
+
+SRCS = $(wildcard $(SRCDIR)/*.c)
+
+CC = gcc
+
+CFLAGS = -g -Wall -I$(INCDIR)
+
+all: $(BINDIR)/chess
+
+$(BINDIR)/chess: $(SRCS)
+	$(CC) $(CFLAGS) -o $(BINDIR)/chess $(SRCS)
+

@@ -1,6 +1,6 @@
 #include "input-output.h"
 
-void flushStdin() // fai header e source file per io
+void flushStdin() 
 {
     scanf("%*[^\n]");
     scanf("%*c");
