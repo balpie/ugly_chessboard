@@ -13,3 +13,5 @@ all: $(BINDIR)/chess
 $(BINDIR)/chess: $(SRCS)
 	$(CC) $(CFLAGS) -o $(BINDIR)/chess $(SRCS)
 
+clean:
+	rm ./bin/chess

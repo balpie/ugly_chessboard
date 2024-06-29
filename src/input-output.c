@@ -16,7 +16,6 @@ type_pezzo inputPiece()
 
 void inputMove(struct position* mov)
 {
-    char c;
     mov[0].c = getchar();
     mov[0].r = getchar();
     mov[1].c = getchar();

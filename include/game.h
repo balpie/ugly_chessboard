@@ -9,15 +9,25 @@ int colore_pezzo(type_pezzo p);
 int isWhitePiece(type_pezzo p);
 int isBlackPiece(type_pezzo p);
 
+/// @brief Inserisce nella lista head la mossa m in testa
+/// @param head testa della lista
+/// @param move mossa da inserire
+/// @return la nuova testa della lista
+void insert_move(struct move_list **head, struct move m);
+
+/// @brief Estrae dalla testa di legalMoves una mossa e la ritorna. ritorna una mossa inesistene se legalMoves è vuota
+/// @return la mossa estratta
+struct move pop_move(struct move_list **head);
+
 /// @brief Inserisce nella lista l_head la posizione p in coda (da modificare, meglio inserimento in testa)
 /// @param head puntatre alla lista nella quale inserire la posizione p
 /// @param p posizione da inserire
 /// @return ritorna l'elemento in testa della lista
-struct position_list* insert(struct position_list *l_head, struct position p); //TODO metti aggiungi in testa
+void insert_position(struct position_list **l_head, struct position p); //TODO metti aggiungi in testa
 
 /// @brief Estrae dalla testa della lista head la prima posizione
 /// @return posizione in testa alla lista
-struct position pop();
+struct position pop_position(struct position_list **head);
 
 /// @brief Rimuove tutte le posizioni presenti nella lista head
 void flush_checkmate_aux_list();

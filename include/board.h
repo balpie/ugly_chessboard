@@ -54,8 +54,17 @@ struct position_list{
     struct position_list *next;
 };
 
+struct move{ // necessaria per valutare la patta per stallo
+    struct position init_p;
+    struct position fin_p;
+};
 
-extern struct position_list* head; //lista dei pezzi che mettono sotto scacco un determinato pezzo
+struct move_list{ // per memorizzare tutte le mosse possibili di un determinato colore
+    struct move m;
+    struct move_list* next;
+};
+extern struct move_list* legalMoves; //mosse legali per un colore
+extern struct position_list* attackers; //lista dei pezzi che mettono sotto scacco un determinato pezzo
 extern struct position wKingPosition;
 extern struct position bKingPosition;
 extern struct position lastPieceMoved;

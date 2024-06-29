@@ -21,7 +21,8 @@ int turn = WHITE;
 unsigned short int castle_privileges = WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE;
 int game_status = NOT_FINISHED;
 
-struct position_list *head = NULL;
+struct position_list *attackers= NULL;
+struct move_list *legalMoves = NULL;
 
 struct position wKingPosition = {.r = 0, .c = 4};
 struct position bKingPosition = {.r = 7, .c = 4};
@@ -30,53 +31,79 @@ struct position lastFreedCell= {.r = -1, .c = -1};
 struct position auxLastFreedCell = {.r = -1, .c = -1};
 
 
-struct position_list* insert(struct position_list *l_head, struct position p)
-{
-    if(l_head == NULL)
-    {
-        l_head = (struct position_list*)malloc(sizeof(struct position_list));
-        l_head->next = NULL;
-        l_head->init_p = p;
-        return l_head;
-    }
-    struct position_list* p0 = l_head; 
-    while (p0->next != NULL)
-    {
-        p0 = p0->next;
-    }
-    p0->next = (struct position_list*)malloc(sizeof(struct position_list));
-    p0->next->init_p = p;
-    p0->next->next = NULL;
-    return l_head;
-}
-
 int colore_pezzo(type_pezzo p)
 {
     if (p > 'Z') return BLACK;
     else return WHITE;
 }
 
-struct position pop() //forse si può fare di meglio? 
+void insert_position(struct position_list **l_head, struct position p)
+{
+    if(l_head == NULL)
+    {
+        (*l_head) = (struct position_list*)malloc(sizeof(struct position_list));
+        (*l_head)->next = NULL;
+        (*l_head)->init_p = p;
+        return;
+    }
+    struct position_list* p0 = (struct position_list*)malloc(sizeof(struct position_list));
+    p0->next = *l_head;
+    p0->init_p = p;
+    *l_head = p0;
+}
+
+struct position pop_position(struct position_list **head) //forse si può fare di meglio? 
 {
     struct position ret_value;
-    if(head == NULL)
+    if(*head == NULL)
     {
         ret_value.r = -1, ret_value.c = -1; // ritorno posizione fittizia
         return ret_value;
     }
     //rimozione in testa
-    struct position_list *p0 = head->next;
-    ret_value = head->init_p;
-    free(head);
-    head = p0;
+    struct position_list *p0 = (*head)->next;
+    ret_value = (*head)->init_p;
+    free(*head);
+    (*head) = p0;
     return ret_value;
 }
 
-void flush_checkmate_aux_list()
+void insert_move(struct move_list **head, struct move m)
 {
-    while(head != NULL)
+    if (*head == NULL)
     {
-        pop();
+        *head = (struct move_list*)malloc(sizeof(struct move_list));
+        (*head)->next = NULL;
+        (*head)->m = m;
+        return;
+    }
+    struct move_list* p0 = (struct move_list*)malloc(sizeof(struct move_list));
+    p0->next = *head;
+    p0->m = m;
+    *head = p0;
+}
+
+struct move pop_move(struct move_list **head)
+{
+    struct move ret_value;
+    if(*head == NULL)
+    {
+        ret_value.init_p.r = ret_value.init_p.c = ret_value.fin_p.r = ret_value.fin_p.c = -1;
+        return ret_value;
+    }
+    //rimozione in testa
+    struct move_list *p0 = (*head)->next;
+    ret_value = (*head)->m;
+    free(*head);
+    (*head) = p0;
+    return ret_value;
+}
+
+void flush_position_list(struct position_list **head)
+{
+    while((*head)!= NULL)
+    {
+        pop_position(head);
     }
 }
 
@@ -289,7 +316,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
     { //turno sbagliato
         return 0;
     }
-    if(isWhitePiece(Board[riga_f][colonna_f]) && isWhitePiece(Board[riga_i][colonna_i]) || isWhitePiece(Board[riga_f][colonna_f]) && isWhitePiece(Board[riga_i][colonna_i]))
+    if((isWhitePiece(Board[riga_f][colonna_f]) && isWhitePiece(Board[riga_i][colonna_i])) || (isBlackPiece(Board[riga_f][colonna_f]) && isBlackPiece(Board[riga_i][colonna_i])))
         return 0; // se sto cercando di andare in una casa occupata da un pezzo dello stesso colore
 
     switch (Board[riga_i][colonna_i])
@@ -908,7 +935,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+1, .c = c+2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -921,7 +948,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+1, .c = c-2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -934,7 +961,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-1, .c = c+2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -947,7 +974,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-1, .c = c-2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -960,7 +987,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+2, .c = c+1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -973,7 +1000,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+2, .c = c-1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -986,7 +1013,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-2, .c = c+1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -999,7 +1026,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-2, .c = c-1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1015,7 +1042,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+1, .c = c+2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1028,7 +1055,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+1, .c = c-2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1041,7 +1068,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-1, .c = c+2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1054,7 +1081,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-1, .c = c-2};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1067,7 +1094,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+2, .c = c+1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1080,7 +1107,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r+2, .c = c-1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1093,7 +1120,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-2, .c = c+1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1106,7 +1133,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
             if(ow)
             {
                 struct position paux = {.r = r-2, .c = c-1};
-                head = insert(head, paux);
+                insert_position(&attackers, paux);
             }
             else
             {
@@ -1121,7 +1148,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         if(ow)
         {
             struct position paux = {.r = r + 1, .c = c - 1};
-            head = insert(head, paux);
+            insert_position(&attackers, paux);
         }
         else
         {
@@ -1135,7 +1162,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         if(ow)
         {
             struct position paux = {.r = r + 1, .c = c + 1};
-            head = insert(head, paux);
+            insert_position(&attackers, paux);
         }
         else
         {
@@ -1148,7 +1175,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         if(ow)
         {
             struct position paux = {.r = r - 1, .c = c - 1};
-            head = insert(head, paux);
+            insert_position(&attackers, paux);
         }
         else
         {
@@ -1161,7 +1188,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
         if(ow)
         {
             struct position paux = {.r = r - 1, .c = c + 1};
-            head = insert(head, paux);
+            insert_position(&attackers, paux);
         }
         else
         {
@@ -1179,7 +1206,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                 i += acc_i; j += acc_j;
                 while(checkInBound(i, j)) // qualche check tipo se non empty esci?!?!?!?
                 {
-                    if((color == WHITE) && isWhitePiece(Board[i][j]) || (color == BLACK) && isBlackPiece(Board[i][j]))
+                    if(((color == WHITE) && isWhitePiece(Board[i][j])) || ((color == BLACK) && isBlackPiece(Board[i][j])))
                     {
                         break; // incontrata casa dello stesso colore, non può farmi scacco
                     }
@@ -1189,7 +1216,7 @@ int isItCheck(struct position inExamPiece, int color, int ow)
                         if(ow)
                         {
                             struct position paux = {.r = i, .c = j};
-                            head = insert(head, paux);
+                            insert_position(&attackers, paux);
                             break;
                         }
                         else
@@ -1241,12 +1268,12 @@ int checkMate()
         struct position inExamSquare;
         if(isValidMove(lastPieceMoved, bKingPosition))
         {
-            flush_checkmate_aux_list(); // libero la lista di pezzi
+            flush_position_list(&attackers); // libero la lista di pezzi
             isItCheck(lastPieceMoved, WHITE, OVER_WRITE);
             struct position saverPiece;
-            while(head != NULL)
+            while(attackers != NULL)
             {
-                saverPiece = pop();
+                saverPiece = pop_position(&attackers);
                 if(isValidMove(saverPiece, lastPieceMoved)) // forse superfluo ???
                 {
                     type_pezzo aux;
@@ -1368,9 +1395,9 @@ int checkMate()
                 struct position aux_p = {.r = i, .c = j};
                 isItCheck(aux_p, BLACK, OVER_WRITE);
                 struct position saverPiece;
-                while(head != NULL)
+                while(attackers != NULL)
                 {
-                    saverPiece = pop();
+                    saverPiece = pop_position(&attackers);
                     type_pezzo aux;
                     aux = Board[i][j];
                     Board[i][j] = Board[saverPiece.r][saverPiece.c];
@@ -1417,9 +1444,9 @@ int checkMate()
                 isItCheck(aux_p, BLACK, OVER_WRITE);
 
                 struct position saverPiece;
-                while(head != NULL)
+                while(attackers != NULL)
                 {
-                    saverPiece = pop();
+                    saverPiece = pop_position(&attackers);
                     type_pezzo aux;
                     aux = Board[i][j];
                     Board[i][j] = Board[saverPiece.r][saverPiece.c];
@@ -1473,12 +1500,12 @@ int checkMate()
         struct position inExamSquare;
         if(isValidMove(lastPieceMoved, wKingPosition))
         {
-            flush_checkmate_aux_list(); // libero la lista di pezzi
+            flush_position_list(&attackers); // libero la lista di pezzi
             isItCheck(lastPieceMoved, WHITE, OVER_WRITE);
             struct position saverPiece;
-            while(head != NULL)
+            while(attackers != NULL)
             {
-                saverPiece = pop();
+                saverPiece = pop_position(&attackers);
                 if(isValidMove(saverPiece, lastPieceMoved))
                 {
                     type_pezzo aux;
@@ -1600,9 +1627,9 @@ int checkMate()
                 struct position aux_p = {.r = i, .c = j};
                 isItCheck(aux_p, WHITE, OVER_WRITE);
                 struct position saverPiece;
-                while(head != NULL)
+                while(attackers != NULL)
                 {
-                    saverPiece = pop();
+                    saverPiece = pop_position(&attackers);
                     type_pezzo aux;
                     aux = Board[i][j];
                     Board[i][j] = Board[saverPiece.r][saverPiece.c];
@@ -1649,9 +1676,9 @@ int checkMate()
                 isItCheck(aux_p, WHITE, OVER_WRITE);
 
                 struct position saverPiece;
-                while(head != NULL)
+                while(attackers != NULL)
                 {
-                    saverPiece = pop();
+                    saverPiece = pop_position(&attackers);
                     type_pezzo aux;
                     aux = Board[i][j];
                     Board[i][j] = Board[saverPiece.r][saverPiece.c];
