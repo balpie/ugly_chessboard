@@ -5,6 +5,8 @@
 int main()
 {
     struct position mov[2];
+    searchInsert(&bPieces, BLACK);
+    searchInsert(&wPieces, WHITE);
     do {
         system("clear");
         print_chessboard();
@@ -17,7 +19,8 @@ int main()
         if(move(mov[0].r, mov[0].c, mov[1].r, mov[1].c))
         {
             int promoted = promotion(turn);
-            if(turn == WHITE)
+            flush_move_list(&legalMoves);
+            if(turn == WHITE) // gestione promozione
             {
                 if(promoted)
                 {
@@ -50,6 +53,7 @@ int main()
                     game_status = checkMate();
                 }
             }
+            int gameEnded = generateMoves(&legalMoves, !turn); //genera le mosse possibili del colore successivo
             if(game_status == CHECK_MATE)
             {
                 system("clear");

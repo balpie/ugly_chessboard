@@ -9,6 +9,13 @@ int colore_pezzo(type_pezzo p);
 int isWhitePiece(type_pezzo p);
 int isBlackPiece(type_pezzo p);
 
+
+/// @brief genera mosse legali per il colore color, inserendole nella lista puntata da head
+/// @param head puntatore alla lista di mosse in esame
+/// @param color colore in esame
+/// @return 0 se non ci sono mosse, 1 altrimenti
+int generateMoves(struct move_list **head, int color);
+
 /// @brief Inserisce nella lista head la mossa m in testa
 /// @param head testa della lista
 /// @param move mossa da inserire
@@ -19,18 +26,28 @@ void insert_move(struct move_list **head, struct move m);
 /// @return la mossa estratta
 struct move pop_move(struct move_list **head);
 
+void flush_move_list(struct move_list **head);
+
 /// @brief Inserisce nella lista l_head la posizione p in coda (da modificare, meglio inserimento in testa)
 /// @param head puntatre alla lista nella quale inserire la posizione p
 /// @param p posizione da inserire
 /// @return ritorna l'elemento in testa della lista
 void insert_position(struct position_list **l_head, struct position p); //TODO metti aggiungi in testa
 
+int removePosition(struct position_list **l_head, struct position p) //TODO implementa
+    // serve per aggiornare la lista di pezzi presenti sulla scacchiera ad ogni mossa 
+
 /// @brief Estrae dalla testa della lista head la prima posizione
 /// @return posizione in testa alla lista
 struct position pop_position(struct position_list **head);
 
+/// @brief cerca i pezzi di colore color e li inserisce in testa alla lista head
+/// @param head lista in cui inserire i pezzi di colore color
+/// @param color colore
+void searchInsert(struct position_list **head, int color);
+
 /// @brief Rimuove tutte le posizioni presenti nella lista head
-void flush_checkmate_aux_list();
+void flush_position_list(struct position_list **head);
 
 /// @brief Valuta se la mossa descritta dai parametri è legale, e nel caso la compie sulla scacchiera. 
 ///        Ha l'effetto collaterale di aggiornare le variabili globali per le informazioni aggiuntive sulla scacchiera 

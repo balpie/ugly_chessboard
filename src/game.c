@@ -11,6 +11,7 @@ type_pezzo Board[8][8] = {
     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 };
 
+
 int numMoves = 0;
 unsigned char whiteEnPassant = 0;
 unsigned char blackEnPassant = 0;
@@ -23,6 +24,8 @@ int game_status = NOT_FINISHED;
 
 struct position_list *attackers= NULL;
 struct move_list *legalMoves = NULL;
+struct position_list* wPieces = NULL;
+struct position_list* bPieces = NULL;
 
 struct position wKingPosition = {.r = 0, .c = 4};
 struct position bKingPosition = {.r = 7, .c = 4};
@@ -33,8 +36,12 @@ struct position auxLastFreedCell = {.r = -1, .c = -1};
 
 int colore_pezzo(type_pezzo p)
 {
-    if (p > 'Z') return BLACK;
-    else return WHITE;
+    if (p > 'Z') 
+        return BLACK;
+    else if (p <= 'Z')
+        return WHITE;
+    else 
+        return EMPTY;
 }
 
 void insert_position(struct position_list **l_head, struct position p)
@@ -99,11 +106,34 @@ struct move pop_move(struct move_list **head)
     return ret_value;
 }
 
+void searchInsert(struct position_list **head, int color)
+{
+    for(int i = 0; i < 8; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            if(colore_pezzo(Board[i][j]) == color)
+            {
+                struct position aux = {.r = i, .c = j};
+                insert_position(head, aux);
+            }
+        }
+    }
+}
+
 void flush_position_list(struct position_list **head)
 {
     while((*head)!= NULL)
     {
         pop_position(head);
+    }
+}
+
+void flush_move_list(struct move_list **head)
+{
+    while (*head != NULL)
+    {
+        pop_move(head);
     }
 }
 
@@ -257,23 +287,27 @@ int isValidPawnMove(struct position pi, struct position pf)
             }
             else return 0;
         }
-        else if(pi.c == pf.c + 1)
+        else if((pi.c == pf.c + 1) || (pi.c == pf.c - 1)) // caso in cui si mangia
         {
-            if(checkInBound(pf.r, pf.c) && (colore_pezzo(Board[pi.r][pi.c]) != colore_pezzo(Board[pf.r][pf.c])) && (Board[pf.r][pf.c] != EMPTY))
+            if (checkInBound(pf.r, pf.c))
             {
-                return 1;
-            } 
-        }
-        else if(pi.c == pf.c - 1)
-        {
-            if(checkInBound(pf.r, pf.c) && (colore_pezzo(Board[pi.r][pi.c]) != colore_pezzo(Board[pf.r][pf.c])) && ((Board[pf.r][pf.c] != EMPTY)))
-            {
-                return 1;
-            } 
+                if((colore_pezzo(Board[pi.r][pi.c]) != colore_pezzo(Board[pf.r][pf.c])) && (Board[pf.r][pf.c] != EMPTY))
+                {
+                    return 1;
+                } 
+                else if((1<<pf.c) & ((colore_pezzo(Board[pi.r][pi.c] == WHITE) ? wEnPassantMove : bEnPassantMove)))
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
         }
     }
     else if (((pi.r == 1) && (pf.r == 3) && (colore_pezzo(Board[pi.r][pi.c]) == WHITE)) || ((pi.r == 6) && (pf.r == 4) && (colore_pezzo(Board[pi.r][pi.c]) == BLACK)))
-        return 1;
+        return 1; 
     return 0;
 }
 
@@ -299,6 +333,422 @@ int isValidMove(struct position pi, struct position pf)
         default:
             return 0;
     }
+}
+
+
+int generateMoves(struct move_list **head, int color)
+{
+    int moves = 0;
+    struct position_list *p = (color == WHITE)? wPieces : bPieces;
+    while(p != NULL)
+    {
+        struct position inExamPiece = p->init_p;
+        struct position aux = inExamPiece;;
+        switch(Board[p->init_p.r][p->init_p.c])
+        {
+            case W_PAWN:
+                aux.r++;
+                if(isValidMove(p->init_p, aux))
+                {// provo mossa di pedone "standard"
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[p->init_p.r][p->init_p.c] = W_PAWN;    
+                }
+                aux.c--;
+                if(isValidMove(p->init_p, aux))
+                {// en-passant
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    Board[aux.r-1][aux.c] = EMPTY; // pedone mangiato
+                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[aux.r-1][aux.c] = B_PAWN; 
+                    Board[p->init_p.r][p->init_p.c] = W_PAWN;    
+                }
+                aux.c+=2;
+                if(isValidMove(p->init_p, aux))
+                {// en-passant
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    Board[aux.r-1][aux.c] = EMPTY; // pedone mangiato
+                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[aux.r-1][aux.c] = B_PAWN; 
+                    Board[p->init_p.r][p->init_p.c] = W_PAWN;    
+                }
+                aux.c--;
+                aux.r++; //spinta di 2 case
+                if(isValidMove(p->init_p, aux))
+                {
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[p->init_p.r][p->init_p.c] = W_PAWN;    
+                }
+                break;
+            case B_PAWN:
+                aux.r++;
+                if(isValidMove(p->init_p, aux))
+                {// provo mossa di pedone "standard"
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                }
+                aux.c--;
+                if(isValidMove(p->init_p, aux))
+                {// en-passant
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    Board[aux.r-1][aux.c] = EMPTY; // pedone mangiato
+                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[aux.r-1][aux.c] = W_PAWN; 
+                    Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                }
+                aux.c+=2;
+                if(isValidMove(p->init_p, aux))
+                {// en-passant
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    Board[aux.r-1][aux.c] = EMPTY; // pedone mangiato
+                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[aux.r-1][aux.c] = W_PAWN; 
+                    Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                }
+                aux.c--;
+                aux.r++; //spinta di 2 case
+                if(isValidMove(p->init_p, aux))
+                {
+                    type_pezzo auxp = Board[aux.r][aux.c];
+                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                    {// se non mi metto sotto scacco la mossa è legale
+                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                        insert_move(&legalMoves, auxm);
+                        moves++;
+                    }
+                    Board[aux.r][aux.c] = auxp;
+                    Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                }
+                break;
+            case W_BISHOP: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if((i != 0) && (j != 0))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = W_BISHOP;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case B_BISHOP: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if((i != 0) && (j != 0))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = B_BISHOP;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case W_ROOK: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if((i == 0) || (j == 0))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = W_ROOK;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case B_ROOK: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if((i == 0) || (j == 0))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = B_ROOK;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case W_QUEEN: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if(!((i == 0) && (j == 0)))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = W_QUEEN;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case B_QUEEN: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if(!((i == 0) && (j == 0)))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            while(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = B_QUEEN;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case W_KING: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if(!((i == 0) && (j == 0)))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            if(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(aux, WHITE, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = W_KING;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            case B_KING: 
+                for(int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        aux = inExamPiece;
+                        if(!((i == 0) && (j == 0)))
+                        {
+                            aux.r += i; // proseguo sulla diagonale
+                            aux.c += j;
+                            if(checkInBound(aux.r, aux.c) && colore_pezzo(Board[inExamPiece.r][inExamPiece.c]) != colore_pezzo(Board[aux.r][aux.c])) 
+                            {
+                                if(isValidMove(inExamPiece, aux))
+                                {
+                                    type_pezzo auxp = Board[aux.r][aux.c];
+                                    Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                                    Board[p->init_p.r][p->init_p.c] = EMPTY;
+                                    if(!isItCheck(aux, BLACK, NOT_OVER_WRITE))
+                                    {// se non mi metto sotto scacco la mossa è legale
+                                        struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                                        insert_move(&legalMoves, auxm);
+                                        moves++;
+                                    }
+                                    Board[aux.r][aux.c] = auxp;
+                                    Board[p->init_p.r][p->init_p.c] = B_KING;    
+                                }
+                                aux.r += i; // proseguo sulla diagonale
+                                aux.c += j;
+                            }
+                        }
+                    }
+                }
+                break;
+            
+        }
+        p = p->next;
+    }
+    return moves;
 }
 
 int move(int riga_i, int colonna_i, int riga_f, int colonna_f)

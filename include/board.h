@@ -65,6 +65,9 @@ struct move_list{ // per memorizzare tutte le mosse possibili di un determinato 
 };
 extern struct move_list* legalMoves; //mosse legali per un colore
 extern struct position_list* attackers; //lista dei pezzi che mettono sotto scacco un determinato pezzo
+extern struct position_list* wPieces;
+extern struct position_list* bPieces;
+extern struct move_list* moves; // mosse legali per il colore del turno attuale
 extern struct position wKingPosition;
 extern struct position bKingPosition;
 extern struct position lastPieceMoved;
