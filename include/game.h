@@ -34,9 +34,6 @@ void flush_move_list(struct move_list **head);
 /// @return ritorna l'elemento in testa della lista
 void insert_position(struct position_list **l_head, struct position p); //TODO metti aggiungi in testa
 
-int removePosition(struct position_list **l_head, struct position p) //TODO implementa
-    // serve per aggiornare la lista di pezzi presenti sulla scacchiera ad ogni mossa 
-
 /// @brief Estrae dalla testa della lista head la prima posizione
 /// @return posizione in testa alla lista
 struct position pop_position(struct position_list **head);

@@ -36,9 +36,9 @@ struct position auxLastFreedCell = {.r = -1, .c = -1};
 
 int colore_pezzo(type_pezzo p)
 {
-    if (p > 'Z') 
+    if (p > 'Z' && p <= 'z') 
         return BLACK;
-    else if (p <= 'Z')
+    else if (p <= 'Z' && p >= 'A')
         return WHITE;
     else 
         return EMPTY;
@@ -295,7 +295,7 @@ int isValidPawnMove(struct position pi, struct position pf)
                 {
                     return 1;
                 } 
-                else if((1<<pf.c) & ((colore_pezzo(Board[pi.r][pi.c] == WHITE) ? wEnPassantMove : bEnPassantMove)))
+                else if((1<<pi.c) & ((colore_pezzo(Board[pi.r][pi.c] == WHITE) ? whiteEnPassant: blackEnPassant)))
                 {
                     return 1;
                 }
@@ -358,6 +358,8 @@ int generateMoves(struct move_list **head, int color)
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
                         moves++;
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                     }
                     Board[aux.r][aux.c] = auxp;
                     Board[p->init_p.r][p->init_p.c] = W_PAWN;    
@@ -373,6 +375,9 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[aux.r-1][aux.c] = B_PAWN; 
+                        Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -390,6 +395,9 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[aux.r-1][aux.c] = B_PAWN; 
+                        Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -407,6 +415,8 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -424,6 +434,8 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -440,6 +452,9 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                        Board[aux.r-1][aux.c] = W_PAWN; 
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -457,6 +472,9 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = B_PAWN;    
+                        Board[aux.r-1][aux.c] = W_PAWN; 
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
@@ -474,6 +492,8 @@ int generateMoves(struct move_list **head, int color)
                     {// se non mi metto sotto scacco la mossa è legale
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
+                        Board[aux.r][aux.c] = auxp; //sfaccio la mossa
+                        Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
