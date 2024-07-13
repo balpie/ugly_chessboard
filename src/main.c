@@ -61,6 +61,13 @@ int main()
                 printf("Scacco Matto!\n");
                 break;
             }
+            if(gameEnded == 0)
+            {
+                system("clear");
+                print_chessboard();
+                printf("Patta per stallo!\n");
+                break;
+            }
             turn = !turn; 
             system("clear");
             if(bEnPassantMove != -1)
