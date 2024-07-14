@@ -87,5 +87,6 @@ extern int turn;
 extern unsigned short int castle_privileges;
 extern int game_status;
 extern int numMoves;
+extern int unActiveMoves; // se = 50 patta per stallo
 
 #endif

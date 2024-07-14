@@ -7,6 +7,7 @@ int main()
     struct position mov[2];
     searchInsert(&bPieces, BLACK);
     searchInsert(&wPieces, WHITE);
+    generateMoves(&legalMoves, WHITE); // genero le mosse iniziali
     do {
         system("clear");
         print_chessboard();

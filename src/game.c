@@ -13,6 +13,7 @@ type_pezzo Board[8][8] = {
 
 
 int numMoves = 0;
+int unActiveMoves = 0;
 unsigned char whiteEnPassant = 0;
 unsigned char blackEnPassant = 0;
 int wEnPassantMove = -1;
@@ -297,7 +298,9 @@ int isValidPawnMove(struct position pi, struct position pf)
                 } 
                 else if((1<<pi.c) & ((colore_pezzo(Board[pi.r][pi.c] == WHITE) ? whiteEnPassant: blackEnPassant)))
                 {
-                    return 1;
+                    if(((pi.r == 1) && (turn == WHITE)) || ((pi.r == 6) && (turn == BLACK)))
+                        return 1;
+                    else return 0;
                 }
                 else
                 {
@@ -771,600 +774,118 @@ int generateMoves(struct move_list **head, int color)
     return moves;
 }
 
-int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
+int move(int riga_i, int colonna_i, int riga_f, int colonna_f) // cambia usando generateMoves
 {
-    if(!checkInBound(riga_i, colonna_i) || !checkInBound(riga_f, colonna_f)) 
-    { //mossa sicuramente non valida
-        return 0;
-    }
-    
-    if (isWhitePiece(Board[riga_i][colonna_i]) && turn == BLACK)
-    { //turno sbagliato
-        return 0;
-    }
-    if (isBlackPiece(Board[riga_i][colonna_i]) && turn == WHITE)
-    { //turno sbagliato
-        return 0;
-    }
-    if((isWhitePiece(Board[riga_f][colonna_f]) && isWhitePiece(Board[riga_i][colonna_i])) || (isBlackPiece(Board[riga_f][colonna_f]) && isBlackPiece(Board[riga_i][colonna_i])))
-        return 0; // se sto cercando di andare in una casa occupata da un pezzo dello stesso colore
-
-    switch (Board[riga_i][colonna_i])
+    //scorro le mosse legali
+    for(struct move_list* p = legalMoves; p->next != NULL; p++)
     {
-    case W_PAWN:
-        if (riga_i == riga_f - 1)
-        {
-            if((colonna_i == colonna_f + 1) || colonna_i == colonna_f - 1) // sto cercando di mangiare un pezzo
-            {
-                if(isBlackPiece(Board[riga_f][colonna_f]))
-                {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = W_PAWN;
-                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-                    {
-                        Board[riga_i][colonna_i] = W_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
+        if((p->m.init_p.r == riga_i) && (p->m.init_p.c == colonna_i) && (p->m.fin_p.r == riga_f) && (p->m.fin_p.c == colonna_f))
+        {// mossa legale
+            if((Board[riga_i][colonna_i] == W_KING) || (Board[riga_i][colonna_i] == B_KING))
+            {// controllo se è l'arrocco, tolgo il privilegio
+                castle_privileges &= (~((turn == BLACK)? (BLACK_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE) : (WHITE_CASTLE_LONG_PRIVILEGE | WHITE_CASTLE_SHORT_PRIVILEGE)));
+                if(abs(colonna_f - colonna_i) >= 1)
+                { // caso arrocco
+                    if(colonna_f < 4) // BASTAVANO 4 IF !!!!!!!!!!!!!!
+                    { // arrocco lungo
+                        lastFreedCell.r = riga_i;
+                        lastFreedCell.c = colonna_i;
+                        lastPieceMoved.r = riga_f;
+                        lastPieceMoved.c = colonna_f;
+                        Board[riga_i][colonna_i] = EMPTY;
+                        Board[riga_f][colonna_f] = (turn == BLACK)? B_KING : W_KING;
+                        Board[(turn == BLACK)? 7 : 0][3] = (turn == BLACK)? B_ROOK: W_ROOK;
+                        return 1;
                     }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
-                }
-                if((riga_i == 4) && (whiteEnPassant & (1<<colonna_i))) // en passant
-                {
-                    Board[lastPieceMoved.r][lastPieceMoved.c] = EMPTY;
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = W_PAWN;
-                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-                    {
-                        Board[lastPieceMoved.r][lastPieceMoved.c] = B_PAWN;
-                        Board[riga_i][colonna_i] = W_PAWN;
-                        Board[riga_f][colonna_f] = EMPTY;
-                        return 0;
+                    else
+                    { // arrocco corto
+                        lastFreedCell.r = riga_i;
+                        lastFreedCell.c = colonna_i;
+                        lastPieceMoved.r = riga_f;
+                        lastPieceMoved.c = colonna_f;
+                        Board[riga_i][colonna_i] = EMPTY;
+                        Board[riga_f][colonna_f] = (turn == BLACK)? B_KING : W_KING;
+                        Board[(turn == BLACK)? 7 : 0][5] = (turn == BLACK)? B_ROOK: W_ROOK;
+                        return 1;
                     }
-                    auxLastFreedCell = lastPieceMoved; // pedone mangiato
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
                 }
-                else 
-                    return 0;
             }
-            else if (colonna_i == colonna_f)
-            {
-                if(Board[riga_f][colonna_f] == EMPTY)
+            if ((Board[riga_i][colonna_i] == W_ROOK) || (Board[riga_i][colonna_i] == B_ROOK))
+            {// tolgo il privilegio
+                if(turn == WHITE)
                 {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = W_PAWN;
-                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                    if (riga_i == 0 && colonna_i == 7)
                     {
-                        Board[riga_i][colonna_i] = W_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
+                        castle_privileges &= (~WHITE_CASTLE_SHORT_PRIVILEGE);
                     }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
+                    else
+                    {
+                        castle_privileges &= (~WHITE_CASTLE_LONG_PRIVILEGE);
+                    }
                 }
-                else 
-                    return 0;
+                else
+                {
+                    if (riga_i == 7 && colonna_i == 7)
+                    {
+                        castle_privileges &= (~BLACK_CASTLE_SHORT_PRIVILEGE);
+                    }
+                    else
+                    {
+                        castle_privileges &= (~BLACK_CASTLE_LONG_PRIVILEGE);
+                    }
+                }
             }
-            else 
-                return 0;
-        }
-        else if (riga_i == riga_f - 2 )
-        {
-            if((colonna_f == colonna_i) && (riga_i == 1) && (Board[riga_i + 1][colonna_i] == EMPTY) && (Board[riga_i + 2][colonna_i] == EMPTY))
-                { // Fixme: puoi sempre avanzare di 2 col pedone -> usa isValidPawnMove
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = W_PAWN;
-                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+            if ((Board[riga_i][colonna_i] == W_PAWN) || (Board[riga_i][colonna_i] == B_PAWN))
+            {// controllo se è en-passant
+                if(abs(riga_f - riga_i) > 1)
+                {// assegno diritti enpassant (spinta di 2)
+                    if(turn == BLACK)
                     {
-                        Board[riga_i][colonna_i] = W_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
+                        wEnPassantMove |= 1 << (colonna_i + 1);
+                        wEnPassantMove |= 1 << (colonna_i - 1);
+                        whiteEnPassant = numMoves;
                     }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    if(Board[riga_f][colonna_f + 1] == B_PAWN)
+                    else
                     {
-                        bEnPassantMove = numMoves;
-                        blackEnPassant |= (1<<(colonna_f+1));
+                        bEnPassantMove |= 1 << (colonna_i + 1);
+                        bEnPassantMove |= 1 << (colonna_i - 1);
+                        blackEnPassant = numMoves;
                     }
-                    if(Board[riga_f][colonna_f - 1] == B_PAWN)
-                    {
-                        bEnPassantMove = numMoves;
-                        blackEnPassant |= (1<<(colonna_f-1));
-                    }
-                    return 1;
                 }
-            else 
-                return 0;
-        }
-        return 0;
-        break;
+                else if((colonna_f != colonna_i) && (Board[riga_f][colonna_f] == EMPTY))
+                {//caso enpassant
+                    unActiveMoves = 0;
+                    auxLastFreedCell.r = riga_i;
+                    auxLastFreedCell.c = colonna_i + (colonna_f - colonna_i);
 
-    case B_PAWN:
-        if (riga_i == riga_f + 1)
-        {
-            if((colonna_i == colonna_f + 1) || colonna_i == colonna_f - 1) // sto cercando di mangiare un pezzo
-            {
-                if(isWhitePiece(Board[riga_f][colonna_f]))
-                {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = B_PAWN;
-                    if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                    {
-                        Board[riga_i][colonna_i] = B_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
-                    }
-                    lastFreedCell.r = riga_i; 
+                    Board[riga_i][colonna_i + (colonna_f - colonna_i)] = EMPTY;
+                    lastFreedCell.r = riga_i;
                     lastFreedCell.c = colonna_i;
                     lastPieceMoved.r = riga_f;
                     lastPieceMoved.c = colonna_f;
-                    return 1;
-                }
-                if((riga_i == 3) && (blackEnPassant & (1<<colonna_i))) // en passant
-                {
-                    Board[lastPieceMoved.r][lastPieceMoved.c] = EMPTY;
+                    type_pezzo aux= Board[riga_i][colonna_i];
                     Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = B_PAWN;
-                    if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                    {
-                        Board[lastPieceMoved.r][lastPieceMoved.c] = W_PAWN;
-                        Board[riga_i][colonna_i] = B_PAWN;
-                        Board[riga_f][colonna_f] = EMPTY;
-                        return 0;
-                    }
-                    auxLastFreedCell = lastPieceMoved; // pedone mangiato
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
-                }
-                else 
+                    Board[riga_f][colonna_f] = aux;
                     return 0;
-            }
-            else if (colonna_i == colonna_f)
-            {
-                if(Board[riga_f][colonna_f] == EMPTY)
-                {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = B_PAWN;
-                    if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                    {
-                        Board[riga_i][colonna_i] = B_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
-                    }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
                 }
-                else return 0;
-            }
-            else 
-                return 0;
-        }
-        else if (riga_i == riga_f + 2 ) 
-            if(colonna_f == colonna_i && riga_i == 6 && Board[riga_i - 1][colonna_i] == EMPTY && Board[riga_i - 2][colonna_i] == EMPTY)
-                {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = B_PAWN;
-                    if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                    {
-                        Board[riga_i][colonna_i] = B_PAWN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
-                    }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    if(Board[riga_f][colonna_f + 1] == W_PAWN)
-                    {
-                        wEnPassantMove = numMoves;
-                        whiteEnPassant |= (1<<(colonna_f+1));
-                    }
-                    if(Board[riga_f][colonna_f - 1] == W_PAWN)
-                    {
-                        wEnPassantMove = numMoves;
-                        whiteEnPassant |= (1<<(colonna_f-1));
-                    }
-                    return 1;
-                }
-            else return 0;
-        break;
-        
-    case W_KNIGHT: 
-        if (isValidKnightMove(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = W_KNIGHT;
-            if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = W_KNIGHT;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            lastFreedCell.r = riga_i; 
-            lastFreedCell.c = colonna_i;
-            lastPieceMoved.r = riga_f;
-            lastPieceMoved.c = colonna_f;
-            return 1;
-        }
-        else return 0;
 
-    case B_KNIGHT:
-        if (isValidKnightMove(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = B_KNIGHT;
-            if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = B_KNIGHT;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
+                return 1;
             }
-            lastFreedCell.r = riga_i; 
+            if((Board[riga_i][colonna_i] == B_PAWN) || (Board[riga_i][colonna_i] == W_PAWN) || Board[riga_f][colonna_f] != EMPTY) // azzero la cosa delle 50m rule
+            {
+                unActiveMoves = 0;
+            }
+            lastFreedCell.r = riga_i;
             lastFreedCell.c = colonna_i;
             lastPieceMoved.r = riga_f;
             lastPieceMoved.c = colonna_f;
+            type_pezzo aux = Board[riga_i][colonna_i];
+            Board[riga_i][colonna_i] = EMPTY;
+            Board[riga_f][colonna_f] = aux;
             return 1;
         }
-        else return 0;
-    case W_BISHOP:
-        if (!goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            return 0; // mossa non valida
-        }
-        if (freeDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = W_BISHOP;
-            if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = W_BISHOP;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            lastFreedCell.r = riga_i; 
-            lastFreedCell.c = colonna_i;
-            lastPieceMoved.r = riga_f;
-            lastPieceMoved.c = colonna_f;
-            return 1;
-        }
-        return 0;
-    case B_BISHOP:
-        if (!goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            return 0; // mossa non valida
-        }
-        if (freeDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = B_BISHOP;
-            if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = B_BISHOP;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            lastFreedCell.r = riga_i; 
-            lastFreedCell.c = colonna_i;
-            lastPieceMoved.r = riga_f;
-            lastPieceMoved.c = colonna_f;
-            return 1;
-        }
-        return 0;
-    case W_ROOK:
-        if (!goodLine(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            return 0;
-        }
-        if (freeLine(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = W_ROOK;
-            if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = W_ROOK;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            lastFreedCell.r = riga_i; 
-            lastFreedCell.c = colonna_i;
-            lastPieceMoved.r = riga_f;
-            lastPieceMoved.c = colonna_f;
-            castle_privileges &= (~((colonna_i == 7)? WHITE_CASTLE_SHORT_PRIVILEGE : WHITE_CASTLE_LONG_PRIVILEGE));
-            return 1;
-        }
-        return 0;
-    case B_ROOK:
-        if (!goodLine(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            return 0;
-        }
-        if (freeLine(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = B_ROOK;
-            if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = B_ROOK;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            lastFreedCell.r = riga_i; 
-            lastFreedCell.c = colonna_i;
-            lastPieceMoved.r = riga_f;
-            lastPieceMoved.c = colonna_f;
-            castle_privileges &= (~((colonna_i == 7)? BLACK_CASTLE_SHORT_PRIVILEGE : BLACK_CASTLE_LONG_PRIVILEGE));
-            return 1;
-        }
-        return 0;
-    case W_QUEEN:
-        if (goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            if (freeDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                type_pezzo aux = Board[riga_f][colonna_f];
-                Board[riga_i][colonna_i] = EMPTY;
-                Board[riga_f][colonna_f] = W_QUEEN;
-                if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-                {
-                    Board[riga_i][colonna_i] = W_QUEEN;
-                    Board[riga_f][colonna_f] = aux;
-                    return 0;
-                }
-                lastFreedCell.r = riga_i; 
-                lastFreedCell.c = colonna_i;
-                lastPieceMoved.r = riga_f;
-                lastPieceMoved.c = colonna_f;
-                return 1;
-            }
-        }
-        else 
-        {
-            if (goodLine(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                if (freeLine(riga_i, colonna_i, riga_f, colonna_f))
-                {
-                    type_pezzo aux = Board[riga_f][colonna_f];
-                    Board[riga_i][colonna_i] = EMPTY;
-                    Board[riga_f][colonna_f] = W_QUEEN;
-                    if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-                    {
-                        Board[riga_i][colonna_i] = W_QUEEN;
-                        Board[riga_f][colonna_f] = aux;
-                        return 0;
-                    }
-                    lastFreedCell.r = riga_i; 
-                    lastFreedCell.c = colonna_i;
-                    lastPieceMoved.r = riga_f;
-                    lastPieceMoved.c = colonna_f;
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    case B_QUEEN:
-        if (goodDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            if (freeDiagonal(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                type_pezzo aux = Board[riga_f][colonna_f];
-                Board[riga_i][colonna_i] = EMPTY;
-                Board[riga_f][colonna_f] = B_QUEEN;
-                if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                {
-                    Board[riga_i][colonna_i] = B_QUEEN;
-                    Board[riga_f][colonna_f] = aux;
-                    return 0;
-                }
-                lastFreedCell.r = riga_i; 
-                lastFreedCell.c = colonna_i;
-                lastPieceMoved.r = riga_f;
-                lastPieceMoved.c = colonna_f;
-                return 1;
-            }
-        }
-        else if(goodLine(riga_i, colonna_i, riga_f, colonna_f))
-        {
-            if (freeLine(riga_i, colonna_i, riga_f, colonna_f))
-            {
-                type_pezzo aux = Board[riga_f][colonna_f];
-                Board[riga_i][colonna_i] = EMPTY;
-                Board[riga_f][colonna_f] = B_QUEEN;
-                if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-                {
-                    Board[riga_i][colonna_i] = B_QUEEN;
-                    Board[riga_f][colonna_f] = aux;
-                    return 0;
-                }
-                lastFreedCell.r = riga_i; 
-                lastFreedCell.c = colonna_i;
-                lastPieceMoved.r = riga_f;
-                lastPieceMoved.c = colonna_f;
-                return 1;
-            }
-        }
-        return 0;
-    case W_KING:
-        if((abs(riga_i - riga_f) <= 1) && abs(colonna_i - colonna_f) <= 1)
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = W_KING;
-            if(isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = W_KING;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            else
-            {
-                wKingPosition.r = riga_f;
-                wKingPosition.c = colonna_f;
-                lastFreedCell.r = riga_i; 
-                lastFreedCell.c = colonna_i;
-                lastPieceMoved.r = riga_f;
-                lastPieceMoved.c = colonna_f;
-                castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
-                return 1;
-            }
-        }
-        else if((riga_f == 0) && (colonna_f == 6) && (castle_privileges & WHITE_CASTLE_SHORT_PRIVILEGE))
-        {
-            if(freeLine(riga_i, colonna_i, riga_f, colonna_f + 1)){
-                int legalCastle = 1;
-                for(struct position aux = wKingPosition; aux.c <= colonna_f; aux.c++)
-                if(isItCheck(aux, WHITE, NOT_OVER_WRITE))
-                {
-                    legalCastle = 0;
-                    break;
-                }
-                if(legalCastle)
-                { // non aggiorno l'ultima cella liberata in quanto non serve
-                    Board[0][7] = EMPTY;
-                    Board[riga_i][colonna_i] = W_ROOK;
-                    Board[riga_f][colonna_f] = W_KING;
-                    wKingPosition.r = riga_f;
-                    wKingPosition.c = colonna_f;
-                    lastPieceMoved.r = riga_i; //nuova posizione della torre
-                    lastPieceMoved.c = colonna_i;
-                    castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset white castle privilege
-                    return 1;
-                }
-            }
-        }
-        else if((riga_f == 0) && (colonna_f == 2) && (castle_privileges & WHITE_CASTLE_LONG_PRIVILEGE))
-        {
-            if(freeLine(riga_i, colonna_i, riga_f, colonna_f - 1)){
-                int legalCastle = 1;
-                for(struct position aux = wKingPosition; aux.c <= colonna_f; aux.c++)
-                if(isItCheck(aux, WHITE, NOT_OVER_WRITE))
-                {
-                    legalCastle = 0;
-                    break;
-                }
-                if(legalCastle)
-                {
-                    Board[0][0] = EMPTY;
-                    Board[riga_i][colonna_i - 1] = W_ROOK;
-                    Board[riga_f][colonna_f] = W_KING;
-                    wKingPosition.r = riga_f;
-                    wKingPosition.c = colonna_f;
-                    lastPieceMoved.r = riga_i;
-                    lastPieceMoved.c = colonna_i - 1;
-                    castle_privileges &= ~(WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE); // unset wite castle privilege
-                    return 1;
-                }
-            }
-            return 0;
-        }
-        return 0;
-    case B_KING:
-        if((abs(riga_i - riga_f) <= 1) && abs(colonna_i - colonna_f) <= 1)
-        {
-            type_pezzo aux = Board[riga_f][colonna_f];
-            Board[riga_i][colonna_i] = EMPTY;
-            Board[riga_f][colonna_f] = B_KING;
-            if(isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
-            {
-                Board[riga_i][colonna_i] = B_KING;
-                Board[riga_f][colonna_f] = aux;
-                return 0;
-            }
-            else
-            {
-                lastFreedCell.r = riga_i; 
-                lastFreedCell.c = colonna_i;
-                lastPieceMoved.r = riga_f;
-                lastPieceMoved.c = colonna_f;
-                bKingPosition.r = riga_f;
-                bKingPosition.c = colonna_f;
-                castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
-                return 1;
-            }
-        }
-        else if((riga_f == 7) && (colonna_f == 6) && (castle_privileges & BLACK_CASTLE_SHORT_PRIVILEGE))
-        {
-            if(freeLine(riga_i, colonna_i, riga_f, colonna_f + 1)){
-                int legalCastle = 1;
-                for(struct position aux = bKingPosition; aux.c <= colonna_f; aux.c++)
-                if(isItCheck(aux, BLACK, NOT_OVER_WRITE))
-                {
-                    legalCastle = 0;
-                    break;
-                }
-                if(legalCastle)
-                {
-                    Board[7][7] = EMPTY;
-                    Board[riga_i][colonna_i] = B_ROOK;
-                    Board[riga_f][colonna_f] = B_KING;
-                    bKingPosition.r = riga_f;
-                    bKingPosition.c = colonna_f;
-                    lastPieceMoved.r = riga_i;
-                    lastPieceMoved.c = colonna_i;
-                    castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
-                    return 1;
-                }
-            }
-        }
-        else if((riga_f == 0) && (colonna_f == 2) && (castle_privileges & BLACK_CASTLE_LONG_PRIVILEGE))
-        {
-            if(freeLine(riga_i, colonna_i, riga_f, colonna_f - 1)){
-                int legalCastle = 1;
-                for(struct position aux = bKingPosition; aux.c <= colonna_f; aux.c++)
-                if(isItCheck(aux, BLACK, NOT_OVER_WRITE))
-                {
-                    legalCastle = 0;
-                    break;
-                }
-                if(legalCastle)
-                {
-                    Board[7][0] = EMPTY;
-                    Board[riga_i][colonna_i - 1] = B_ROOK;
-                    Board[riga_f][colonna_f] = B_KING;
-                    bKingPosition.r = riga_f;
-                    bKingPosition.c = colonna_f;
-                    lastPieceMoved.r = riga_i;
-                    lastPieceMoved.c = colonna_i - 1;
-                    castle_privileges &= ~(BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE); // unset black castle privilege
-                    return 1;
-                }
-            }
-        }
-        return 0;
-    default:
-        break;
     }
-    return 0;
+    return 0; // mossa non legale
 }
 
 void print_chessboard()
