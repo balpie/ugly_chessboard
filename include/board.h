@@ -84,7 +84,7 @@ extern int bEnPassantMove;
 
 extern type_pezzo Board[8][8];
 extern int turn;
-extern unsigned short int castle_privileges;
+extern unsigned short int castle_privileges; // maschera
 extern int game_status;
 extern int numMoves;
 extern int unActiveMoves; // se = 50 patta per stallo

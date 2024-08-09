@@ -9,6 +9,8 @@ int main()
     searchInsert(&wPieces, WHITE);
     generateMoves(&legalMoves, WHITE); // genero le mosse iniziali
     do {
+        searchInsert(&bPieces, BLACK); // ottimizza rimuovendo quando stampi
+        searchInsert(&wPieces, WHITE);
         system("clear");
         print_chessboard();
         if(turn == WHITE)

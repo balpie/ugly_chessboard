@@ -74,4 +74,6 @@ int checkMate(); // ritorna 1 se l'utima mossa ha generato matto, 0 se la partit
 /// @return la colonna del pedone promosso se c'è stata una promozione, 0 altrimenti
 int promotion(int color);
 
+extern struct position knightMoves[];
+
 #endif

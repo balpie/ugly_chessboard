@@ -11,6 +11,18 @@ type_pezzo Board[8][8] = {
     {B_ROOK, B_KNIGHT, B_BISHOP, B_QUEEN, B_KING, B_BISHOP, B_KNIGHT, B_ROOK},
 };
 
+struct position knightMoves[8] = 
+{
+    {.r = -1, .c = -2},
+    {.r = -1, .c = 2},
+    {.r = -2, .c = 1},
+    {.r = -2, .c = -1},
+    {.r = +1, .c = -2},
+    {.r = +1, .c = 2},
+    {.r = +2, .c = 1},
+    {.r = +2, .c = -1},
+};
+
 
 int numMoves = 0;
 int unActiveMoves = 0;
@@ -701,6 +713,50 @@ int generateMoves(struct move_list **head, int color)
                     }
                 }
                 break;
+            case W_KNIGHT:
+                aux = inExamPiece;
+                for(int i = 0; i < 8; i++)
+                {
+                    aux.r = inExamPiece.r + knightMoves[i].r;
+                    aux.c = inExamPiece.c + knightMoves[i].c;
+                    if(isValidMove(inExamPiece, aux))
+                    {
+                        type_pezzo auxp = Board[aux.r][aux.c];
+                        Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                        Board[p->init_p.r][p->init_p.c] = EMPTY;
+                        if(!isItCheck(wKingPosition, WHITE, NOT_OVER_WRITE))
+                        {// se non mi metto sotto scacco la mossa è legale
+                            struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                            insert_move(&legalMoves, auxm);
+                            moves++;
+                        }
+                        Board[aux.r][aux.c] = auxp;
+                        Board[p->init_p.r][p->init_p.c] = W_KNIGHT;    
+                    }
+                }
+                break;
+            case B_KNIGHT:
+                aux = inExamPiece;
+                for(int i = 0; i < 8; i++)
+                {
+                    aux.r = inExamPiece.r + knightMoves[i].r;
+                    aux.c = inExamPiece.c + knightMoves[i].c;
+                    if(isValidMove(inExamPiece, aux))
+                    {
+                        type_pezzo auxp = Board[aux.r][aux.c];
+                        Board[aux.r][aux.c] = Board[p->init_p.r][p->init_p.c];
+                        Board[p->init_p.r][p->init_p.c] = EMPTY;
+                        if(!isItCheck(bKingPosition, BLACK, NOT_OVER_WRITE))
+                        {// se non mi metto sotto scacco la mossa è legale
+                            struct move auxm = {.init_p = p->init_p, .fin_p = aux};
+                            insert_move(&legalMoves, auxm);
+                            moves++;
+                        }
+                        Board[aux.r][aux.c] = auxp;
+                        Board[p->init_p.r][p->init_p.c] = B_KNIGHT;    
+                    }
+                }
+                break;
             case W_KING: 
                 for(int i = -1; i <= 1; i++)
                 {
@@ -767,17 +823,16 @@ int generateMoves(struct move_list **head, int color)
                     }
                 }
                 break;
-            
         }
         p = p->next;
     }
     return moves;
 }
 
-int move(int riga_i, int colonna_i, int riga_f, int colonna_f) // cambia usando generateMoves
+int move(int riga_i, int colonna_i, int riga_f, int colonna_f) 
 {
     //scorro le mosse legali
-    for(struct move_list* p = legalMoves; p->next != NULL; p++)
+    for(struct move_list* p = legalMoves; p->next != NULL; p = p->next)
     {
         if((p->m.init_p.r == riga_i) && (p->m.init_p.c == colonna_i) && (p->m.fin_p.r == riga_f) && (p->m.fin_p.c == colonna_f))
         {// mossa legale
@@ -868,8 +923,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f) // cambia usando 
                     Board[riga_f][colonna_f] = aux;
                     return 0;
                 }
-
-                return 1;
+                // return 1;
             }
             if((Board[riga_i][colonna_i] == B_PAWN) || (Board[riga_i][colonna_i] == W_PAWN) || Board[riga_f][colonna_f] != EMPTY) // azzero la cosa delle 50m rule
             {
