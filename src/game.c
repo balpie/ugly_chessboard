@@ -439,7 +439,7 @@ int generateMoves(struct move_list **head, int color)
                 }
                 break;
             case B_PAWN:
-                aux.r++;
+                aux.r--;
                 if(isValidMove(p->init_p, aux))
                 {// provo mossa di pedone "standard"
                     type_pezzo auxp = Board[aux.r][aux.c];
@@ -497,7 +497,7 @@ int generateMoves(struct move_list **head, int color)
                     Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                 }
                 aux.c--;
-                aux.r++; //spinta di 2 case
+                aux.r--; //spinta di 2 case
                 if(isValidMove(p->init_p, aux))
                 {
                     type_pezzo auxp = Board[aux.r][aux.c];
@@ -923,7 +923,6 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     Board[riga_f][colonna_f] = aux;
                     return 0;
                 }
-                // return 1;
             }
             if((Board[riga_i][colonna_i] == B_PAWN) || (Board[riga_i][colonna_i] == W_PAWN) || Board[riga_f][colonna_f] != EMPTY) // azzero la cosa delle 50m rule
             {
