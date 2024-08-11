@@ -353,6 +353,10 @@ int isValidMove(struct position pi, struct position pf)
 
 int generateMoves(struct move_list **head, int color)
 {
+    if(unActiveMoves >= 100)
+    {
+        return 0;
+    }
     int moves = 0;
     struct position_list *p = (color == WHITE)? wPieces : bPieces;
     while(p != NULL)
@@ -909,7 +913,6 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 }
                 else if((colonna_f != colonna_i) && (Board[riga_f][colonna_f] == EMPTY))
                 {//caso enpassant
-                    unActiveMoves = 0;
                     auxLastFreedCell.r = riga_i;
                     auxLastFreedCell.c = colonna_i + (colonna_f - colonna_i);
 
@@ -921,12 +924,17 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     type_pezzo aux= Board[riga_i][colonna_i];
                     Board[riga_i][colonna_i] = EMPTY;
                     Board[riga_f][colonna_f] = aux;
-                    return 0;
+                    unActiveMoves = 0;
+                    return 1;
                 }
             }
             if((Board[riga_i][colonna_i] == B_PAWN) || (Board[riga_i][colonna_i] == W_PAWN) || Board[riga_f][colonna_f] != EMPTY) // azzero la cosa delle 50m rule
             {
                 unActiveMoves = 0;
+            }
+            else
+            {
+                unActiveMoves++;
             }
             lastFreedCell.r = riga_i;
             lastFreedCell.c = colonna_i;

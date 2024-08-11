@@ -2,13 +2,12 @@
 c chessboard wild try
 
 features:
-    molte poche
-todo: 
     castle
     promotion
     50 move rule
+    stalemate 
+todo: 
     repetition draw
-    "smothered" draw
     import games in pgn format
     export games in pgn format
 

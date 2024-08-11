@@ -68,7 +68,14 @@ int main()
             {
                 system("clear");
                 print_chessboard();
-                printf("Patta per stallo!\n");
+                if(unActiveMoves >= 100)
+                {
+                    printf("Patta per la regola delle 50 mosse!\n");
+                }
+                else
+                {
+                    printf("Patta per stallo!\n");
+                }
                 break;
             }
             turn = !turn; 

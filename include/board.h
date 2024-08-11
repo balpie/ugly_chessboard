@@ -87,6 +87,6 @@ extern int turn;
 extern unsigned short int castle_privileges; // maschera
 extern int game_status;
 extern int numMoves;
-extern int unActiveMoves; // se = 50 patta per stallo
+extern int unActiveMoves; // se = 100 patta per stallo (1 equivale a mezza mossa)
 
 #endif
