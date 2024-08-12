@@ -64,18 +64,25 @@ int main()
                 printf("Scacco Matto!\n");
                 break;
             }
-            if(gameEnded == 0)
+            if(gameEnded == 0) 
             {
                 system("clear");
                 print_chessboard();
-                if(unActiveMoves >= 100)
-                {
-                    printf("Patta per la regola delle 50 mosse!\n");
-                }
-                else
-                {
-                    printf("Patta per stallo!\n");
-                }
+                printf("Patta per stallo!\n");
+                break;
+            }
+            if(unActiveMoves >= 100)
+            {
+                system("clear");
+                print_chessboard();
+                printf("Patta per la regola delle 50 mosse!\n");
+                break;
+            }
+            if(isItThreefoldRepetition())
+            {
+                system("clear");
+                print_chessboard();
+                printf("Patta per ripetizione!\n");
                 break;
             }
             turn = !turn; 

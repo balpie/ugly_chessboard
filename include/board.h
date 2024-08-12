@@ -63,10 +63,18 @@ struct move_list{ // per memorizzare tutte le mosse possibili di un determinato 
     struct move m;
     struct move_list* next;
 };
+
+struct board_list{ //per la patta per ripetizione
+    type_pezzo board[8][8];
+    struct board_list *next;
+
+};
+
 extern struct move_list* legalMoves; //mosse legali per un colore
 extern struct position_list* attackers; //lista dei pezzi che mettono sotto scacco un determinato pezzo
 extern struct position_list* wPieces;
 extern struct position_list* bPieces;
+extern struct board_list* boardList;
 extern struct move_list* moves; // mosse legali per il colore del turno attuale
 extern struct position wKingPosition;
 extern struct position bKingPosition;

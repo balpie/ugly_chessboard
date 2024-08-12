@@ -39,6 +39,7 @@ struct position_list *attackers= NULL;
 struct move_list *legalMoves = NULL;
 struct position_list* wPieces = NULL;
 struct position_list* bPieces = NULL;
+struct board_list* boardList = NULL;
 
 struct position wKingPosition = {.r = 0, .c = 4};
 struct position bKingPosition = {.r = 7, .c = 4};
@@ -55,6 +56,77 @@ int colore_pezzo(type_pezzo p)
         return WHITE;
     else 
         return EMPTY;
+}
+
+void copy_board(const type_pezzo src[][8], type_pezzo dest[][8])
+{
+    for(int i = 0; i < 8; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            dest[i][j] = src[i][j];
+        }
+    }
+}
+
+int compare_board(const type_pezzo board1[][8], const type_pezzo board2[][8])
+{
+    for(int i = 0; i < 8; i++)
+    {
+        for(int j = 0; j < 8; j++)
+        {
+            if(board1[i][j] != board2[i][j])
+            {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+void insert_board(struct board_list **l_head, type_pezzo b[][8])
+{
+    if(l_head == NULL)
+    {
+        (*l_head) = (struct board_list*)malloc(sizeof(struct board_list));
+        (*l_head)->next = NULL;
+        copy_board(b, (*l_head)->board);
+        return;
+    }
+    struct board_list* p0 = (struct board_list*)malloc(sizeof(struct board_list));
+    p0->next = *l_head;
+    copy_board(b, p0->board);
+    *l_head = p0;
+}
+
+void flushBoardList(struct board_list **l_head)
+{
+    if((*l_head) == NULL)
+    {
+        return;
+    }
+    flushBoardList(&(*l_head)->next);
+    free(*l_head);
+}
+
+int isItThreefoldRepetition()
+{
+    struct board_list *p;
+    p = boardList;
+    int counter = 0;
+    while(p != NULL)
+    {
+        if(compare_board(p->board, Board))
+        {
+            counter++;
+        }
+        p = p->next;
+    }
+    if (counter >= 3)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 void insert_position(struct position_list **l_head, struct position p)
@@ -854,6 +926,8 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                         Board[riga_i][colonna_i] = EMPTY;
                         Board[riga_f][colonna_f] = (turn == BLACK)? B_KING : W_KING;
                         Board[(turn == BLACK)? 7 : 0][3] = (turn == BLACK)? B_ROOK: W_ROOK;
+                        flushBoardList(&boardList);
+                        insert_board(&boardList, Board);
                         return 1;
                     }
                     else
@@ -865,6 +939,8 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                         Board[riga_i][colonna_i] = EMPTY;
                         Board[riga_f][colonna_f] = (turn == BLACK)? B_KING : W_KING;
                         Board[(turn == BLACK)? 7 : 0][5] = (turn == BLACK)? B_ROOK: W_ROOK;
+                        flushBoardList(&boardList);
+                        insert_board(&boardList, Board);
                         return 1;
                     }
                 }
@@ -925,11 +1001,14 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                     Board[riga_i][colonna_i] = EMPTY;
                     Board[riga_f][colonna_f] = aux;
                     unActiveMoves = 0;
+                    flushBoardList(&boardList);
+                    insert_board(&boardList, Board);
                     return 1;
                 }
             }
             if((Board[riga_i][colonna_i] == B_PAWN) || (Board[riga_i][colonna_i] == W_PAWN) || Board[riga_f][colonna_f] != EMPTY) // azzero la cosa delle 50m rule
             {
+                flushBoardList(&boardList);
                 unActiveMoves = 0;
             }
             else
@@ -943,6 +1022,7 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
             type_pezzo aux = Board[riga_i][colonna_i];
             Board[riga_i][colonna_i] = EMPTY;
             Board[riga_f][colonna_f] = aux;
+            insert_board(&boardList, Board);
             return 1;
         }
     }

@@ -74,6 +74,10 @@ int checkMate(); // ritorna 1 se l'utima mossa ha generato matto, 0 se la partit
 /// @return la colonna del pedone promosso se c'è stata una promozione, 0 altrimenti
 int promotion(int color);
 
+/// @brief  valuta 2 posizioni identiche alla posizione attuale nella lista boardList
+/// @return 1 se c'è patta per ripetizione, 0 altrimenti
+int isItThreefoldRepetition();
+
 extern struct position knightMoves[];
 
 #endif
