@@ -2,12 +2,8 @@
 c chessboard wild try
 
 features:
-    castle
-    promotion
-    50 move rule
-    stalemate 
+    kinda play chess
 todo: 
-    repetition draw
     import games in pgn format
     export games in pgn format
 
