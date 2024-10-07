@@ -86,7 +86,7 @@ int compare_board(const type_pezzo board1[][8], const type_pezzo board2[][8])
 
 void insert_board(struct board_list **l_head, type_pezzo b[][8])
 {
-    if(l_head == NULL)
+    if((*l_head) == NULL)
     {
         (*l_head) = (struct board_list*)malloc(sizeof(struct board_list));
         (*l_head)->next = NULL;
@@ -107,6 +107,7 @@ void flushBoardList(struct board_list **l_head)
     }
     flushBoardList(&(*l_head)->next);
     free(*l_head);
+    *l_head = NULL;
 }
 
 int isItThreefoldRepetition()
