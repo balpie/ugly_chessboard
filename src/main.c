@@ -25,7 +25,7 @@ int main()
             flush_move_list(&legalMoves);
             if(turn == WHITE) // gestione promozione
             {
-                if(promoted)
+                if(promoted != -1)
                 {
                     type_pezzo newPiece;
                     while(!isWhitePiece(newPiece = inputPiece())){
@@ -41,7 +41,7 @@ int main()
             }
             else
             {
-                if(promoted)
+                if(promoted != -1)
                 {
                     type_pezzo newPiece;
                     while(!isBlackPiece(newPiece = inputPiece())){

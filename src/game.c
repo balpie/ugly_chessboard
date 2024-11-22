@@ -394,7 +394,9 @@ int isValidPawnMove(struct position pi, struct position pf)
             }
         }
     }
-    else if (((pi.r == 1) && (pf.r == 3) && (colore_pezzo(Board[pi.r][pi.c]) == WHITE)) || ((pi.r == 6) && (pf.r == 4) && (colore_pezzo(Board[pi.r][pi.c]) == BLACK)))
+    else if (((pi.r == 1) && (pf.r == 3) && (colore_pezzo(Board[pi.r][pi.c]) == WHITE)) 
+                                            || 
+            ((pi.r == 6) && (pf.r == 4) && (colore_pezzo(Board[pi.r][pi.c]) == BLACK)))
         return 1; 
     return 0;
 }
@@ -468,12 +470,14 @@ int generateMoves(struct move_list **head, int color)
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
-                        Board[aux.r-1][aux.c] = B_PAWN; 
+                        // if(enpassant)
+                        //  Board[aux.r-1][aux.c] = B_PAWN; 
                         Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    Board[aux.r-1][aux.c] = B_PAWN; 
+                    //  if(enpassant) 
+                    //      Board[aux.r-1][aux.c] = B_PAWN; 
                     Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                 }
                 aux.c+=2;
@@ -488,12 +492,14 @@ int generateMoves(struct move_list **head, int color)
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
-                        Board[aux.r-1][aux.c] = B_PAWN; 
+                        // if(enpassant)
+                        //  Board[aux.r-1][aux.c] = B_PAWN; 
                         Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    Board[aux.r-1][aux.c] = B_PAWN; 
+                    //  if(enpassant)
+                    //      Board[aux.r-1][aux.c] = B_PAWN; 
                     Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                 }
                 aux.c--;
@@ -546,11 +552,13 @@ int generateMoves(struct move_list **head, int color)
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
                         Board[p->init_p.r][p->init_p.c] = B_PAWN;    
-                        Board[aux.r-1][aux.c] = W_PAWN; 
+                        //if(enpassant)
+                        //   Board[aux.r+1][aux.c] = W_PAWN; 
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    Board[aux.r-1][aux.c] = W_PAWN; 
+                    //  if(enpassant)
+                    //      Board[aux.r-1][aux.c] = W_PAWN; 
                     Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                 }
                 aux.c+=2;
@@ -566,11 +574,13 @@ int generateMoves(struct move_list **head, int color)
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
                         Board[p->init_p.r][p->init_p.c] = B_PAWN;    
-                        Board[aux.r-1][aux.c] = W_PAWN; 
+                        //if(enpassant)
+                        //   Board[aux.r+1][aux.c] = W_PAWN; 
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    Board[aux.r-1][aux.c] = W_PAWN; 
+                    //  if(enpassant)
+                    //      Board[aux.r-1][aux.c] = W_PAWN; 
                     Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                 }
                 aux.c--;
@@ -915,7 +925,10 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
         {// mossa legale
             if((Board[riga_i][colonna_i] == W_KING) || (Board[riga_i][colonna_i] == B_KING))
             {// controllo se è l'arrocco, tolgo il privilegio
-                castle_privileges &= (~((turn == BLACK)? (BLACK_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE) : (WHITE_CASTLE_LONG_PRIVILEGE | WHITE_CASTLE_SHORT_PRIVILEGE)));
+                castle_privileges &= 
+                    (~((turn == BLACK)? 
+                       (BLACK_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE) : 
+                       (WHITE_CASTLE_LONG_PRIVILEGE | WHITE_CASTLE_SHORT_PRIVILEGE)));
                 if(abs(colonna_f - colonna_i) >= 1)
                 { // caso arrocco
                     if(colonna_f < 4) // BASTAVANO 4 IF !!!!!!!!!!!!!!
@@ -1602,7 +1615,6 @@ int checkMate()
     else // black turn branch
     {
         //vedo se il bianco è sotto scacco matto
-        int ret_value = CHECK_MATE;
         for(int i = -1; i <= 1; i++)
         {
             for (int j = -1; j < 1; j++)
@@ -1837,10 +1849,12 @@ int promotion(int color)
 {
         for(int i = 0; i < 8; i++)
             if(color == WHITE)
-                if(Board[7][i] == W_PAWN)
-                    return i;
+            {
+                if(Board[7][i] == W_PAWN)return i;
+            }
             else
-                if(Board[0][i] == B_PAWN)
-                    return i;
-    return 0;
+            {
+                if(Board[0][i] == B_PAWN)return i;
+            }
+    return -1;
 }
