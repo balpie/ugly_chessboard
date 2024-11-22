@@ -470,14 +470,20 @@ int generateMoves(struct move_list **head, int color)
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
-                        // if(enpassant)
-                        //  Board[aux.r-1][aux.c] = B_PAWN; 
+                        if((whiteEnPassant & (1<<p->init_p.c)) && 
+                                Board[aux.r-1][aux.c] == B_PAWN)
+                        {
+                            Board[aux.r-1][aux.c] = B_PAWN; 
+                        }
                         Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    //  if(enpassant) 
-                    //      Board[aux.r-1][aux.c] = B_PAWN; 
+                    if((whiteEnPassant & (1<<p->init_p.c)) && 
+                            Board[aux.r-1][aux.c] == B_PAWN)
+                    {
+                        Board[aux.r-1][aux.c] = B_PAWN; 
+                    }
                     Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                 }
                 aux.c+=2;
@@ -492,14 +498,22 @@ int generateMoves(struct move_list **head, int color)
                         struct move auxm = {.init_p = p->init_p, .fin_p = aux};
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
-                        // if(enpassant)
-                        //  Board[aux.r-1][aux.c] = B_PAWN; 
+                        if((whiteEnPassant & (1<<p->init_p.c)) && 
+                                Board[aux.r-1][aux.c] == B_PAWN)
+                        {
+                            Board[aux.r-1][aux.c] = B_PAWN; 
+                        }
+                        Board[p->init_p.r][p->init_p.c] = W_PAWN;    
+                        moves++;
                         Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    //  if(enpassant)
-                    //      Board[aux.r-1][aux.c] = B_PAWN; 
+                    if((whiteEnPassant & (1<<p->init_p.c)) && 
+                            Board[aux.r-1][aux.c] == B_PAWN)
+                    {
+                        Board[aux.r-1][aux.c] = B_PAWN; 
+                    }
                     Board[p->init_p.r][p->init_p.c] = W_PAWN;    
                 }
                 aux.c--;
@@ -552,13 +566,19 @@ int generateMoves(struct move_list **head, int color)
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
                         Board[p->init_p.r][p->init_p.c] = B_PAWN;    
-                        //if(enpassant)
-                        //   Board[aux.r+1][aux.c] = W_PAWN; 
+                        if((blackEnPassant & (1<<p->init_p.c)) && 
+                                Board[aux.r+1][aux.c] == W_PAWN)
+                        {
+                            Board[aux.r+1][aux.c] = W_PAWN; 
+                        }
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    //  if(enpassant)
-                    //      Board[aux.r-1][aux.c] = W_PAWN; 
+                    if((blackEnPassant & (1<<p->init_p.c)) && 
+                            Board[aux.r+1][aux.c] == W_PAWN)
+                    {
+                        Board[aux.r+1][aux.c] = W_PAWN; 
+                    }
                     Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                 }
                 aux.c+=2;
@@ -574,13 +594,19 @@ int generateMoves(struct move_list **head, int color)
                         insert_move(&legalMoves, auxm);
                         Board[aux.r][aux.c] = auxp; //sfaccio la mossa
                         Board[p->init_p.r][p->init_p.c] = B_PAWN;    
-                        //if(enpassant)
-                        //   Board[aux.r+1][aux.c] = W_PAWN; 
+                        if((blackEnPassant & (1<<p->init_p.c)) && 
+                                Board[aux.r+1][aux.c] == W_PAWN)
+                        {
+                            Board[aux.r+1][aux.c] = W_PAWN; 
+                        }
                         moves++;
                     }
                     Board[aux.r][aux.c] = auxp;
-                    //  if(enpassant)
-                    //      Board[aux.r-1][aux.c] = W_PAWN; 
+                    if((blackEnPassant & (1<<p->init_p.c)) && 
+                            Board[aux.r+1][aux.c] == W_PAWN)
+                    {
+                        Board[aux.r+1][aux.c] = W_PAWN; 
+                    }
                     Board[p->init_p.r][p->init_p.c] = B_PAWN;    
                 }
                 aux.c--;
@@ -990,15 +1016,15 @@ int move(int riga_i, int colonna_i, int riga_f, int colonna_f)
                 {// assegno diritti enpassant (spinta di 2)
                     if(turn == BLACK)
                     {
-                        wEnPassantMove |= 1 << (colonna_i + 1);
-                        wEnPassantMove |= 1 << (colonna_i - 1);
-                        whiteEnPassant = numMoves;
-                    }
+                        whiteEnPassant |= 1 << (colonna_i + 1);
+                        whiteEnPassant |= 1 << (colonna_i - 1);
+                        wEnPassantMove = numMoves;
+                    }   
                     else
                     {
-                        bEnPassantMove |= 1 << (colonna_i + 1);
-                        bEnPassantMove |= 1 << (colonna_i - 1);
-                        blackEnPassant = numMoves;
+                        blackEnPassant |= 1 << (colonna_i + 1);
+                        blackEnPassant |= 1 << (colonna_i - 1);
+                        bEnPassantMove = numMoves;
                     }
                 }
                 else if((colonna_f != colonna_i) && (Board[riga_f][colonna_f] == EMPTY))
