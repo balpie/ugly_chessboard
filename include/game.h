@@ -5,8 +5,19 @@
 #include <malloc.h>
 
 
+/// @brief Valuta il colore del pezzo p
+/// @param p - pezzo in esame
+/// @return - il colore del pezzo o EMPTY altrimenti
 int colore_pezzo(type_pezzo p);
+
+
+/// @brief Valuta se il pezzo è bianco
+/// @return - true se il pezzo è bianco, false altrimenti
 int isWhitePiece(type_pezzo p);
+
+
+/// @brief Valuta se il pezzo è nero 
+/// @return - true se il pezzo è nero, false altrimenti
 int isBlackPiece(type_pezzo p);
 
 
@@ -26,13 +37,14 @@ void insert_move(struct move_list **head, struct move m);
 /// @return la mossa estratta
 struct move pop_move(struct move_list **head);
 
+/// @brief Estrae dalla lista di mosse tutte le mosse
 void flush_move_list(struct move_list **head);
 
 /// @brief Inserisce nella lista l_head la posizione p in coda (da modificare, meglio inserimento in testa)
 /// @param head puntatre alla lista nella quale inserire la posizione p
 /// @param p posizione da inserire
 /// @return ritorna l'elemento in testa della lista
-void insert_position(struct position_list **l_head, struct position p); //TODO metti aggiungi in testa
+void insert_position(struct position_list **l_head, struct position p); 
 
 /// @brief Estrae dalla testa della lista head la prima posizione
 /// @return posizione in testa alla lista
@@ -56,6 +68,7 @@ void flush_position_list(struct position_list **head);
 int move(int riga_i, int colonna_i, int riga_f, int colonna_f); // ritorna 1 se la mossa è legale, 0 altrimenti
 
 /// @brief Stampa a video lo stato attuale della scacchiera
+//TODO: implementare interfaccia grafica
 void print_chessboard(); //usa libreria da definirsi 
 
 /// @brief Valuta se la posizione inExamPiece è sotto scacco da almeno un pezzo avversario.

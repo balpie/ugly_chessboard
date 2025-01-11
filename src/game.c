@@ -32,7 +32,11 @@ int wEnPassantMove = -1;
 int bEnPassantMove = -1;
 
 int turn = WHITE;
-unsigned short int castle_privileges = WHITE_CASTLE_SHORT_PRIVILEGE | WHITE_CASTLE_LONG_PRIVILEGE | BLACK_CASTLE_SHORT_PRIVILEGE | BLACK_CASTLE_LONG_PRIVILEGE;
+unsigned short int castle_privileges = WHITE_CASTLE_SHORT_PRIVILEGE 
+                                     | WHITE_CASTLE_LONG_PRIVILEGE 
+                                     | BLACK_CASTLE_SHORT_PRIVILEGE 
+                                     | BLACK_CASTLE_LONG_PRIVILEGE;
+
 int game_status = NOT_FINISHED;
 
 struct position_list *attackers= NULL;
@@ -44,7 +48,7 @@ struct board_list* boardList = NULL;
 struct position wKingPosition = {.r = 0, .c = 4};
 struct position bKingPosition = {.r = 7, .c = 4};
 struct position lastPieceMoved = {.r = -1, .c = -1};
-struct position lastFreedCell= {.r = -1, .c = -1};
+struct position lastFreedCell = {.r = -1, .c = -1};
 struct position auxLastFreedCell = {.r = -1, .c = -1};
 
 
@@ -235,7 +239,7 @@ int isWhitePiece(type_pezzo p)
 
 int isBlackPiece(type_pezzo p)
 {
-    return p > 'Z';
+    return p < 'z' && p >= 'a';
 }
 
 int checkInBound(int r, int c)
