@@ -20,6 +20,12 @@ int isWhitePiece(type_pezzo p);
 /// @return - true se il pezzo è nero, false altrimenti
 int isBlackPiece(type_pezzo p);
 
+/// @brief Valuta se la posizione è all'interno della scacchiera
+/// @param r - Riga della posizione
+/// @param c Colonna della posizione
+/// @return True se la posizione è all'interno della scacchira, false altrimenti
+int checkInBound(int r, int c);
+
 
 /// @brief genera mosse legali per il colore color, inserendole nella lista puntata da head
 /// @param head puntatore alla lista di mosse in esame
